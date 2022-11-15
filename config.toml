@@ -1,6 +1,6 @@
 baseURL = 'https://aliml92.github.io'
 languageCode = 'en-us'
-title = 'My New Hugo Site'
+title = 'My Blog'
 theme = 'm10c'
 ignoreFiles = ["LICENSE$"]
 
@@ -11,13 +11,13 @@ ignoreFiles = ["LICENSE$"]
   #contentTypeName = "posts"
 
   # "light" or "dark"
-  defaultTheme = "dark"
+  defaultTheme = "light"
 
   # if you set this to 0, only submenu trigger will be visible
   showMenuItems = 2
 
   # Show reading time in minutes for posts
-  showReadingTime = false
+  showReadingTime = true
 
   # Show table of contents at the top of your posts (defaults to false)
   # Alternatively, add this param to post front matter for specific posts
@@ -29,11 +29,11 @@ ignoreFiles = ["LICENSE$"]
 
 [languages]
   [languages.en]
-    title = "Michael Schnerring"
-    subtitle = "Coder and Computer Enthusiast"
+    title = "Alisher Muzaffarov"
+    subtitle = "Humorous Lifelong Learner"
     keywords = ""
-    description = "Michael Schnerring is a coder and computer enthusiast."
-    copyright = "<p>Copyright © 2020 Michael Schnerring</p><p xmlns:dct='http://purl.org/dc/terms/' xmlns:cc='http://creativecommons.org/ns#' class='license-text'><a rel='cc:attributionURL' property='dct:title' href='https://github.com/schnerring/schnerring.github.io/tree/main/content'>Content</a> licensed under <a rel='license' href='https://creativecommons.org/licenses/by/4.0'>CC BY 4.0</a></p>"
+    description = "Alisher Muzaffarov is a cloud native developer."
+    copyright = "<p>Copyright © 2022 Alisher Muzaffarov</p><p xmlns:dct='http://purl.org/dc/terms/' xmlns:cc='http://creativecommons.org/ns#' class='license-text'><a rel='cc:attributionURL' property='dct:title' href='https://github.com/schnerring/schnerring.github.io/tree/main/content'>Content</a> licensed under <a rel='license' href='https://creativecommons.org/licenses/by/4.0'>CC BY 4.0</a></p>"
     menuMore = "Show more"
     writtenBy = "Written by"
     readMore = "Read more"
@@ -47,7 +47,7 @@ ignoreFiles = ["LICENSE$"]
     #lastModDisplay = "modified"
 
     [languages.en.params.logo]
-      logoText = "schnerring.net"
+      logoText = "alisher muzaffarov"
       logoHomeLink = "/"
     # or
     #
