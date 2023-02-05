@@ -1,0 +1,94 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Alisher Muzaffarov</title><link>https://alisherm.dev/posts/</link><description>Recent content in Posts on Alisher Muzaffarov</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>&lt;a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0&lt;/a></copyright><lastBuildDate>Wed, 21 Sep 2022 15:30:18 +0900</lastBuildDate><atom:link href="https://alisherm.dev/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Introduction to OCPP(Open Charge Point Protocol)</title><link>https://alisherm.dev/posts/ocpp-deep-dive-1/</link><pubDate>Wed, 21 Sep 2022 15:30:18 +0900</pubDate><guid>https://alisherm.dev/posts/ocpp-deep-dive-1/</guid><description>In recent years, electical vehicles have become more and more popular. As a result, the number of charging stations has increased significantly. There is no doubt that this new trend comes with its own challenges. For instance, managing multiple charging stations remotely, monitoring them in real-time, providing a seamless user experience, etc. Of course, those challenges can be addressed by creating backend systems that can communicate with charging stations. Again we have interoperability issues between charging stations and backend systems of different manufacturers.</description><content type="html"><![CDATA[<p>In recent years, electical vehicles have become more and more popular. As a result, the number of charging stations has increased significantly. There is no doubt that this new trend comes with its own challenges. For instance, managing multiple charging stations remotely, monitoring them in real-time, providing a seamless user experience, etc. Of course, those challenges can be addressed by creating backend systems that can communicate with charging stations. Again we have interoperability issues between charging stations and backend systems of different manufacturers. This pushed the industry to come up with a standard protocol that can be used globally. And that&rsquo;s how OCPP was born. In this article, I will try to explain what OCPP is, how it works, and what are its components. So, let&rsquo;s get started, shall we?</p>
+<h2 id="what-is-ocpp">What is OCPP?</h2>
+<p>In simple terms, <strong>Open Charge Point Protocol</strong> (OCPP) is a set of rules that defines how charging stations and backend systems communicate with each other. It is an open standard that is maintained by the <a href="https://www.openchargealliance.org/">Open Charge Alliance</a>. The main goal of OCPP is to provide a common interface between charging stations and backend systems. According to the protocol specs, backend systems called <em>Central System</em> or <em>Charging Station Management Systems</em> (e.g. a backend server)  and charging stations called <em>Charge Point</em> which is a physical device that is installed at a charging station.</p>
+<p>Below is a topology of a simple OCPP system where two kinds of Charge Points are connected to a Central System.
+<img src="/images/ready-simple-ocpp-topology.png" alt="OCPP Topology"></p>
+<h2 id="ocpp-versions">OCPP Versions</h2>
+<p>First version of OCPP was released in 2010. There have been several versions of OCPP since then. The latest version is OCPP 2.0.1. Below is a list of OCPP versions:</p>
+<ol>
+<li><a href="https://www.openchargealliance.org/protocols/archive/">OCPP 1.2</a></li>
+<li><a href="https://www.openchargealliance.org/protocols/archive/">OCPP 1.5</a></li>
+<li><a href="https://www.openchargealliance.org/downloads/">OCPP 1.6</a></li>
+<li><a href="https://www.openchargealliance.org/protocols/archive/">OCPP 2.0</a></li>
+<li><a href="https://www.openchargealliance.org/downloads/">OCPP 2.0.1</a></li>
+</ol>
+<p>Currently, OCPP 1.6 and 2.0.1 are most widely used.</p>
+<h2 id="how-ocpp-works">How OCPP works</h2>
+<p>From now on I will refer to Charging Station Management Systems as <strong>CSMS</strong> and Charge Point as <strong>CP</strong> and I will use OCPP 2.0.1 documentations for reference. For beginners, the best way to understand OCPP is to read <a href="/documents/OCPP-2.0.1_part4_ocpp-j-specification.pdf">JSON over WebSockets implementation guide</a>:</p>
+<p>As the name of the above document suggests, OCPP uses JSON over WebSockets for communication between CSMS and CP. Let&rsquo;s translate the phrase &ldquo;<em>JSON over WebSockets</em>&rdquo; into plain English.</p>
+<ul>
+<li>
+<p>WebSockets means there can be two types of communication:</p>
+<ol>
+<li>CP sends a request to CSMS and gets a response.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>     +--------+    request     +--------+
+</span></span><span style="display:flex;"><span>     |        |--------&gt;-------|        |
+</span></span><span style="display:flex;"><span>     |   CP   |                |  CSMS  |
+</span></span><span style="display:flex;"><span>     |        |-------&lt;--------|        |
+</span></span><span style="display:flex;"><span>     +--------+   response     +--------+  
+</span></span></code></pre></div><ol start="2">
+<li>CSMS sends a request to CP and get a response.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>     +--------+    request     +--------+
+</span></span><span style="display:flex;"><span>     |        |-------&lt;--------|        |
+</span></span><span style="display:flex;"><span>     |   CP   |                |  CSMS  |
+</span></span><span style="display:flex;"><span>     |        |-------&gt;--------|        |
+</span></span><span style="display:flex;"><span>     +--------+   response     +--------+  
+</span></span></code></pre></div></li>
+<li>
+<p>JSON means that all messages are encoded in JSON format.
+Now, we know data format is JSON. But how do we know which message is a request and which one is a response? The answer is in the message type. In OCPP, we can only use three types of messages:</p>
+<ol>
+<li><em>CALL</em></li>
+<li><em>CALLRESULT</em></li>
+<li><em>CALLERROR</em></li>
+</ol>
+</li>
+</ul>
+<p>In general, when we say JSON, we immediately think of something like below:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;John Doe&#34;</span>,
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>But OCPP uses <a href="https://json-schema.org/understanding-json-schema/reference/array.html#array">json array type</a> for all messages; CALL, CALLRESULT, and CALLERROR. Below are JSON formats of those three types of messages:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>  <span style="color:#75715e">// Message format template
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">// CALL
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">MessageTypeId</span><span style="color:#f92672">&gt;</span>, <span style="color:#e6db74">&#34;&lt;MessageId&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;Action&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Payload</span><span style="color:#f92672">&gt;</span>}]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// CALLRESULT
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">MessageTypeId</span><span style="color:#f92672">&gt;</span>, <span style="color:#e6db74">&#34;&lt;MessageId&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Payload</span><span style="color:#f92672">&gt;</span>}]
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// CALLERROR
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">MessageTypeId</span><span style="color:#f92672">&gt;</span>, <span style="color:#e6db74">&#34;&lt;MessageId&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;errorCode&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;errorDescription&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">errorDetails</span><span style="color:#f92672">&gt;</span>}]
+</span></span></code></pre></div><p>At this point we can be sure that CALL is a request and CALLRESULT is a response. But what about CALLERROR? It is a response too. But it is a response that indicates an error. For example, CP sends a request (a certain <em>CALL</em> message) to CSMS and CSMS responds with a <em>CALLRESULT</em> message. But if CSMS cannot process the request, it will respond with a <em>CALLERROR</em> message. In simple terms, both <em>CALLRESULT</em> and <em>CALLERROR</em> responses, but one is successful and the other one is not.</p>
+<p>Now you might wonder what <code>MessageTypeId</code>, <code>MessageId</code>, <code>Action</code>, <code>Payload</code>, <code>errorCode</code>, <code>errorDescription</code>, and <code>errorDetails</code> are. Let&rsquo;s learn each of them one by one and construct example messages for each type.</p>
+<ol>
+<li><code>MessageTypeId</code> is an integer value that indicates the type of the message.
+<em>2</em> is for <em>CALL</em>, <em>3</em> is for <em>CALLRESULT</em>, and  <em>4</em> is for <em>CALLERROR</em>. Let&rsquo;s put this information into a our message format template:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>  <span style="color:#75715e">// Message format template
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">// CALL
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#ae81ff">2</span>, <span style="color:#e6db74">&#34;&lt;MessageId&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;Action&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Payload</span><span style="color:#f92672">&gt;</span>}]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// CALLRESULT
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#ae81ff">3</span>, <span style="color:#e6db74">&#34;&lt;MessageId&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Payload</span><span style="color:#f92672">&gt;</span>}]
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// CALLERROR
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#ae81ff">4</span>, <span style="color:#e6db74">&#34;&lt;MessageId&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;errorCode&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;errorDescription&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">errorDetails</span><span style="color:#f92672">&gt;</span>}]
+</span></span></code></pre></div><p>Now some might have a light bulb moment and think that following:</p>
+<blockquote>
+<p>Let me imagine I am implementing a CSMS (writing a backend server). I will parse the incoming websocket message and assume it is a JSON array. Then I will check the first element of the array and if it is 2, I will assume it is a CALL message. If it is 3, I will assume it is a CALLRESULT message. If it is 4, I will assume it is a CALLERROR message. Now second element ?</p>
+</blockquote>
+<p>Well, second element is <code>MessageId</code>. It is a string (unique id with max 36 characters) that is used to match a response with a request. For example, CP sends a request to CSMS and CSMS responds with a <em>CALLRESULT</em> message. But how does CSMS know which request this response belongs to? The answer is <code>MessageId</code>. CSMS will put the same <code>MessageId</code> in the response message as it was in the request message. Let&rsquo;s put this information into our message format template:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>  <span style="color:#75715e">// Message format template
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">// CALL
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#ae81ff">2</span>, <span style="color:#e6db74">&#34;7c9dac8f-5e5f-4166-b2f0-8e737bfa1ec7&#34;</span>, <span style="color:#e6db74">&#34;&lt;Action&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Payload</span><span style="color:#f92672">&gt;</span>}]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// CALLRESULT
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#ae81ff">3</span>, <span style="color:#e6db74">&#34;7c9dac8f-5e5f-4166-b2f0-8e737bfa1ec7&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Payload</span><span style="color:#f92672">&gt;</span>}]
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// CALLERROR
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  [<span style="color:#ae81ff">4</span>, <span style="color:#e6db74">&#34;7c9dac8f-5e5f-4166-b2f0-8e737bfa1ec7&#34;</span>, <span style="color:#e6db74">&#34;&lt;errorCode&gt;&#34;</span>, <span style="color:#e6db74">&#34;&lt;errorDescription&gt;&#34;</span>, {<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">errorDetails</span><span style="color:#f92672">&gt;</span>}]
+</span></span></code></pre></div><p>Now it is time to explain <code>Action</code> and <code>Payload</code>. I will explain them in detail in my next post. Stay tuned!</p>
+]]></content></item></channel></rss>
