@@ -1,1 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tags on Alisher Muzaffarov</title><link>https://alisherm.dev/tags/</link><description>Recent content in Tags on Alisher Muzaffarov</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>&lt;a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0&lt;/a></copyright><lastBuildDate>Sat, 04 Feb 2023 15:30:18 +0900</lastBuildDate><atom:link href="https://alisherm.dev/tags/index.xml" rel="self" type="application/rss+xml"/><item><title>EV</title><link>https://alisherm.dev/tags/ev/</link><pubDate>Sat, 04 Feb 2023 15:30:18 +0900</pubDate><guid>https://alisherm.dev/tags/ev/</guid><description/></item><item><title>OCPP</title><link>https://alisherm.dev/tags/ocpp/</link><pubDate>Sat, 04 Feb 2023 15:30:18 +0900</pubDate><guid>https://alisherm.dev/tags/ocpp/</guid><description/></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Tags on alisherm.dev</title>
+    <link>https://alisherm.dev/tags/</link>
+    <description>Recent content in Tags on alisherm.dev</description>
+    <image>
+      <title>alisherm.dev</title>
+      <url>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 07 May 2023 09:44:20 +0900</lastBuildDate><atom:link href="https://alisherm.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gin</title>
+      <link>https://alisherm.dev/tags/gin/</link>
+      <pubDate>Sun, 07 May 2023 09:44:20 +0900</pubDate>
+      
+      <guid>https://alisherm.dev/tags/gin/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>sqlc</title>
+      <link>https://alisherm.dev/tags/sqlc/</link>
+      <pubDate>Sun, 07 May 2023 09:44:20 +0900</pubDate>
+      
+      <guid>https://alisherm.dev/tags/sqlc/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>EV</title>
+      <link>https://alisherm.dev/tags/ev/</link>
+      <pubDate>Sat, 04 Feb 2023 15:30:18 +0900</pubDate>
+      
+      <guid>https://alisherm.dev/tags/ev/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>OCPP</title>
+      <link>https://alisherm.dev/tags/ocpp/</link>
+      <pubDate>Sat, 04 Feb 2023 15:30:18 +0900</pubDate>
+      
+      <guid>https://alisherm.dev/tags/ocpp/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Notes on alisherm.dev</title>
+    <link>https://alisherm.dev/notes/</link>
+    <description>Recent content in Notes on alisherm.dev</description>
+    <image>
+      <title>alisherm.dev</title>
+      <url>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Wed, 15 Feb 2023 09:48:36 +0900</lastBuildDate><atom:link href="https://alisherm.dev/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gin Notes</title>
+      <link>https://alisherm.dev/notes/gin/</link>
+      <pubDate>Wed, 15 Feb 2023 09:48:36 +0900</pubDate>
+      
+      <guid>https://alisherm.dev/notes/gin/</guid>
+      <description>My notes on Gin</description>
+    </item>
+    
+  </channel>
+</rss>
