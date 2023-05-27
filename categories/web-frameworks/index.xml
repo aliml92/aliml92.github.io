@@ -12,12 +12,12 @@
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Wed, 15 Feb 2023 09:48:36 +0900</lastBuildDate><atom:link href="https://alisherm.dev/categories/web-frameworks/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Gin Notes</title>
-      <link>https://alisherm.dev/notes/gin/</link>
+      <title>My notes on Gin web framework</title>
+      <link>https://alisherm.dev/notes/my-notes-on-gin/</link>
       <pubDate>Wed, 15 Feb 2023 09:48:36 +0900</pubDate>
       
-      <guid>https://alisherm.dev/notes/gin/</guid>
-      <description>My notes on Gin</description>
+      <guid>https://alisherm.dev/notes/my-notes-on-gin/</guid>
+      <description>My notes 📓 on Gin, only the things I used so far ...</description>
     </item>
     
   </channel>

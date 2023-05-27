@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Notes on alisherm.dev</title>
-    <link>https://alisherm.dev/notes/</link>
-    <description>Recent content in Notes on alisherm.dev</description>
+    <title>Algorithms on alisherm.dev</title>
+    <link>https://alisherm.dev/categories/algorithms/</link>
+    <description>Recent content in Algorithms on alisherm.dev</description>
     <image>
       <title>alisherm.dev</title>
       <url>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
       <link>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 27 May 2023 12:53:53 +0900</lastBuildDate><atom:link href="https://alisherm.dev/notes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 27 May 2023 12:53:53 +0900</lastBuildDate><atom:link href="https://alisherm.dev/categories/algorithms/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>My notes on leetcode problems</title>
       <link>https://alisherm.dev/notes/my-notes-on-leetcode-problems/</link>
@@ -18,15 +18,6 @@
       
       <guid>https://alisherm.dev/notes/my-notes-on-leetcode-problems/</guid>
       <description>My notes 📔 on leetcode problems, which I looked at so far ...</description>
-    </item>
-    
-    <item>
-      <title>My notes on Gin web framework</title>
-      <link>https://alisherm.dev/notes/my-notes-on-gin/</link>
-      <pubDate>Wed, 15 Feb 2023 09:48:36 +0900</pubDate>
-      
-      <guid>https://alisherm.dev/notes/my-notes-on-gin/</guid>
-      <description>My notes 📓 on Gin, only the things I used so far ...</description>
     </item>
     
   </channel>
