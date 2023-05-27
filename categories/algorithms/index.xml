@@ -12,12 +12,12 @@
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Sat, 27 May 2023 12:53:53 +0900</lastBuildDate><atom:link href="https://alisherm.dev/categories/algorithms/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>My notes on leetcode problems</title>
-      <link>https://alisherm.dev/notes/my-notes-on-leetcode-problems/</link>
+      <title>Leetcode problems notes (arrays and hashing)</title>
+      <link>https://alisherm.dev/notes/leetcode_array_and_hashing/</link>
       <pubDate>Sat, 27 May 2023 12:53:53 +0900</pubDate>
       
-      <guid>https://alisherm.dev/notes/my-notes-on-leetcode-problems/</guid>
-      <description>My notes 📔 on leetcode problems, which I looked at so far ...</description>
+      <guid>https://alisherm.dev/notes/leetcode_array_and_hashing/</guid>
+      <description>My notes 📔 on leetcode problems on arrays and hashing.</description>
     </item>
     
   </channel>
