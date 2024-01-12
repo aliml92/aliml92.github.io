@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>OCPP on alisherm.dev</title>
+    <title>OCPP on Home</title>
     <link>https://alisherm.dev/tags/ocpp/</link>
-    <description>Recent content in OCPP on alisherm.dev</description>
-    <image>
-      <title>alisherm.dev</title>
-      <url>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
-      <link>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
-    </image>
+    <description>Recent content in OCPP on Home</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 04 Feb 2023 15:30:18 +0900</lastBuildDate><atom:link href="https://alisherm.dev/tags/ocpp/index.xml" rel="self" type="application/rss+xml" />
+    <language>en</language>
+    <copyright>Copyright © 2023–2024, Alisher Muzaffarov and the alisherm.dev; all rights reserved.</copyright>
+    <lastBuildDate>Sat, 04 Feb 2023 15:30:18 +0900</lastBuildDate>
+    <atom:link href="https://alisherm.dev/tags/ocpp/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Introduction to OCPP(Open Charge Point Protocol)</title>
       <link>https://alisherm.dev/posts/introduction-to-ocpp/</link>
       <pubDate>Sat, 04 Feb 2023 15:30:18 +0900</pubDate>
-      
       <guid>https://alisherm.dev/posts/introduction-to-ocpp/</guid>
-      <description>Get a detail overview on OCPP</description>
+      <description>In recent years, electical vehicles have become more and more popular. As a result, the number of charging stations has increased significantly. There is no doubt that this new trend comes with its own challenges. For instance, managing multiple charging stations remotely, monitoring them in real-time, providing a seamless user experience, etc. Of course, those challenges can be addressed by creating backend systems that can communicate with charging stations. Again we have interoperability issues between charging stations and backend systems of different manufacturers.</description>
     </item>
-    
   </channel>
 </rss>

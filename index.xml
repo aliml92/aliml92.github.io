@@ -1,62 +1,41 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>alisherm.dev</title>
+    <title>Home</title>
     <link>https://alisherm.dev/</link>
-    <description>Recent content on alisherm.dev</description>
-    <image>
-      <title>alisherm.dev</title>
-      <url>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
-      <link>https://alisherm.dev/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
-    </image>
+    <description>Recent content on Home</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 27 May 2023 12:53:53 +0900</lastBuildDate><atom:link href="https://alisherm.dev/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Leetcode problems notes (arrays and hashing)</title>
-      <link>https://alisherm.dev/notes/leetcode_array_and_hashing/</link>
-      <pubDate>Sat, 27 May 2023 12:53:53 +0900</pubDate>
-      
-      <guid>https://alisherm.dev/notes/leetcode_array_and_hashing/</guid>
-      <description>My notes 📔 on leetcode problems on arrays and hashing.</description>
-    </item>
-    
+    <language>en</language>
+    <copyright>Copyright © 2023–2024, Alisher Muzaffarov and the alisherm.dev; all rights reserved.</copyright>
+    <lastBuildDate>Sun, 07 May 2023 09:44:20 +0900</lastBuildDate>
+    <atom:link href="https://alisherm.dev/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>A simple go, gin, and sqlc combination walkthrough</title>
       <link>https://alisherm.dev/posts/go-gin-sqlc-walkthrough/</link>
       <pubDate>Sun, 07 May 2023 09:44:20 +0900</pubDate>
-      
       <guid>https://alisherm.dev/posts/go-gin-sqlc-walkthrough/</guid>
-      <description>Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
-# 1. user registration request curl --location &amp;#39;http://localhost:8085/api/users&amp;#39; \  --header &amp;#39;Content-Type: application/json&amp;#39; \  --data-raw &amp;#39;{ &amp;#34;user&amp;#34;: { &amp;#34;username&amp;#34;: &amp;#34;johndoe&amp;#34;, &amp;#34;email&amp;#34;: &amp;#34;johndoe@example.</description>
+      <description>Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:&#xA;# 1. user registration request curl --location &amp;#39;http://localhost:8085/api/users&amp;#39; \ --header &amp;#39;Content-Type: application/json&amp;#39; \ --data-raw &amp;#39;{ &amp;#34;user&amp;#34;: { &amp;#34;username&amp;#34;: &amp;#34;johndoe&amp;#34;, &amp;#34;email&amp;#34;: &amp;#34;johndoe@example.</description>
     </item>
-    
-    <item>
-      <title>Gin framework notes</title>
-      <link>https://alisherm.dev/notes/my-notes-on-gin/</link>
-      <pubDate>Wed, 15 Feb 2023 09:48:36 +0900</pubDate>
-      
-      <guid>https://alisherm.dev/notes/my-notes-on-gin/</guid>
-      <description>My notes 📓 on Gin, only the things I used so far ...</description>
-    </item>
-    
     <item>
       <title>Introduction to OCPP(Open Charge Point Protocol)</title>
       <link>https://alisherm.dev/posts/introduction-to-ocpp/</link>
       <pubDate>Sat, 04 Feb 2023 15:30:18 +0900</pubDate>
-      
       <guid>https://alisherm.dev/posts/introduction-to-ocpp/</guid>
-      <description>Get a detail overview on OCPP</description>
+      <description>In recent years, electical vehicles have become more and more popular. As a result, the number of charging stations has increased significantly. There is no doubt that this new trend comes with its own challenges. For instance, managing multiple charging stations remotely, monitoring them in real-time, providing a seamless user experience, etc. Of course, those challenges can be addressed by creating backend systems that can communicate with charging stations. Again we have interoperability issues between charging stations and backend systems of different manufacturers.</description>
     </item>
-    
     <item>
       <title>About</title>
       <link>https://alisherm.dev/about/</link>
       <pubDate>Tue, 17 Jan 2023 09:30:59 +0900</pubDate>
-      
       <guid>https://alisherm.dev/about/</guid>
-      <description>Hello there! I&amp;rsquo;m a backend engineer who thrives on exploring new technologies and integrating them into my expertise, particularly with Golang and Python. In this ever-evolving tech landscape, I find joy in lending a hand and sharing knowledge, fostering a community where innovation and collaboration meet. My altruistic nature, coupled with an ability to quickly adapt and excel, guides me in developing innovative solutions that significantly enhance user experiences. Feel free to delve deeper into my journey and expertise by downloading my resume.</description>
+      <description>Greetings! I&amp;rsquo;m a backend engineer specializing in Golang. I actively explore emerging technologies for my projects, and I&amp;rsquo;m committed to doing my best in the tech I love. Take a look at my resume to learn more about my experience and skills!&#xA;Languages Golang, SQL, Python, Javascript and Rust(coming soon&amp;hellip;)&#xA;Technologies Docker, Kubernetes, PostgreSQL, MongoDB, Traefik, Nginx, REST API, Search Engines (Elasticsearch/Typesense), &amp;hellip;&#xA;Frameworks &amp;amp; Libraries Gin, Echo, FastAPI, Sanic, Gorilla web toolkit, pgx/v5, sqlc, htmx.</description>
     </item>
-    
-    
+    <item>
+      <title>Search</title>
+      <link>https://alisherm.dev/search/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://alisherm.dev/search/</guid>
+      <description>search</description>
+    </item>
   </channel>
 </rss>

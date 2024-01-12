@@ -1,560 +1,772 @@
-<!doctype html><html lang=en dir=auto>
-<head><meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge">
-<meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no">
-<meta name=robots content="index, follow">
-<title>A simple go, gin, and sqlc combination walkthrough | alisherm.dev</title>
-<meta name=keywords content="sqlc,gin">
-<meta name=description content="Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
-# 1. user registration request curl --location 'http://localhost:8085/api/users' \  --header 'Content-Type: application/json' \  --data-raw '{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example.">
-<meta name=author content="Alisher">
-<link rel=canonical href=https://alisherm.dev/posts/go-gin-sqlc-walkthrough/>
-<meta name=google-site-verification content="XYZabc">
-<meta name=yandex-verification content="XYZabc">
-<meta name=msvalidate.01 content="XYZabc">
-<link crossorigin=anonymous href=/assets/css/stylesheet.3613efbd0b1772781e8f49935e973cae632a7f61471c05b17be155505ccf87b5.css integrity="sha256-NhPvvQsXcngej0mTXpc8rmMqf2FHHAWxe+FVUFzPh7U=" rel="preload stylesheet" as=style>
-<script defer crossorigin=anonymous src=/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG+9vmJ0cTS+ovo0FeA=" onload=hljs.initHighlightingOnLoad()></script>
-<link rel=icon href=https://alisherm.dev/%3Clink%20/%20abs%20url%3E>
-<link rel=icon type=image/png sizes=16x16 href=https://alisherm.dev/%3Clink%20/%20abs%20url%3E>
-<link rel=icon type=image/png sizes=32x32 href=https://alisherm.dev/%3Clink%20/%20abs%20url%3E>
-<link rel=apple-touch-icon href=https://alisherm.dev/%3Clink%20/%20abs%20url%3E>
-<link rel=mask-icon href=https://alisherm.dev/%3Clink%20/%20abs%20url%3E>
-<meta name=theme-color content="#2e2e33">
-<meta name=msapplication-TileColor content="#2e2e33">
-<noscript>
-<style>#theme-toggle,.top-link{display:none}</style>
-<style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--hljs-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style>
-</noscript>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(function(a,e,f,g,b,c,d){a.GoogleAnalyticsObject=b,a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)},a[b].l=1*new Date,c=e.createElement(f),d=e.getElementsByTagName(f)[0],c.async=1,c.src=g,d.parentNode.insertBefore(c,d)}(window,document,'script','https://www.google-analytics.com/analytics.js','ga'),ga('create','UA-123-45','auto'),ga('send','pageview'))</script><meta property="og:title" content="A simple go, gin, and sqlc combination walkthrough">
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready lg:text-base"
+  style="--bg: #faf8f1"
+  lang="en"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>A simple go, gin, and sqlc combination walkthrough - Home</title>
+
+  
+  <meta name="theme-color" />
+
+  
+  
+  
+  
+  <meta name="description" content="Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
+# 1. user registration request curl --location &#39;http://localhost:8085/api/users&#39; \ --header &#39;Content-Type: application/json&#39; \ --data-raw &#39;{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example." />
+  <meta name="author" content="Alisher Muzaffarov" />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="https://alisherm.dev/main.min.css" />
+
+  
+  
+  
+  
+  
+  <link rel="preload" as="image" href="https://alisherm.dev/theme.png" />
+
+  
+  
+  
+  
+  <link rel="preload" as="image" href="https://www.gravatar.com/avatar/da192b931e2c1970c704975fdcae17c6?s=160&amp;d=identicon" />
+  
+  
+
+  
+  
+  <link rel="preload" as="image" href="https://alisherm.dev/github.svg" />
+  
+  
+
+  
+  
+  <script
+    defer
+    src="https://alisherm.dev/highlight.min.js"
+    onload="hljs.initHighlightingOnLoad();"
+  ></script>
+  
+
+  
+  
+  
+
+  
+  <link rel="icon" href="https://alisherm.dev/favicon.ico" />
+  <link rel="apple-touch-icon" href="https://alisherm.dev/apple-touch-icon.png" />
+
+  
+  <meta name="generator" content="Hugo 0.121.2">
+
+  
+  
+  
+  
+  
+  <meta itemprop="name" content="A simple go, gin, and sqlc combination walkthrough">
+<meta itemprop="description" content="Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
+# 1. user registration request curl --location &#39;http://localhost:8085/api/users&#39; \ --header &#39;Content-Type: application/json&#39; \ --data-raw &#39;{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example."><meta itemprop="datePublished" content="2023-05-07T09:44:20+09:00" />
+<meta itemprop="dateModified" content="2023-05-07T09:44:20+09:00" />
+<meta itemprop="wordCount" content="1626">
+<meta itemprop="keywords" content="sqlc,gin," />
+  
+  <meta property="og:title" content="A simple go, gin, and sqlc combination walkthrough" />
 <meta property="og:description" content="Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
-# 1. user registration request curl --location 'http://localhost:8085/api/users' \  --header 'Content-Type: application/json' \  --data-raw '{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://alisherm.dev/posts/go-gin-sqlc-walkthrough/">
-<meta property="og:image" content="https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc.png"><meta property="article:section" content="posts">
-<meta property="article:published_time" content="2023-05-07T09:44:20+09:00">
-<meta property="article:modified_time" content="2023-05-07T09:44:20+09:00"><meta property="og:site_name" content="alisherm.dev">
-<meta name=twitter:card content="summary_large_image">
-<meta name=twitter:image content="https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc.png">
-<meta name=twitter:title content="A simple go, gin, and sqlc combination walkthrough">
-<meta name=twitter:description content="Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
-# 1. user registration request curl --location 'http://localhost:8085/api/users' \  --header 'Content-Type: application/json' \  --data-raw '{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example.">
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":2,"name":"Posts","item":"https://alisherm.dev/posts/"},{"@type":"ListItem","position":3,"name":"A simple go, gin, and sqlc combination walkthrough","item":"https://alisherm.dev/posts/go-gin-sqlc-walkthrough/"}]}</script>
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"A simple go, gin, and sqlc combination walkthrough","name":"A simple go, gin, and sqlc combination walkthrough","description":"Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:\n# 1. user registration request curl --location \u0026#39;http://localhost:8085/api/users\u0026#39; \\  --header \u0026#39;Content-Type: application/json\u0026#39; \\  --data-raw \u0026#39;{ \u0026#34;user\u0026#34;: { \u0026#34;username\u0026#34;: \u0026#34;johndoe\u0026#34;, \u0026#34;email\u0026#34;: \u0026#34;johndoe@example.","keywords":["sqlc","gin"],"articleBody":"Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:\n# 1. user registration request curl --location 'http://localhost:8085/api/users' \\  --header 'Content-Type: application/json' \\  --data-raw '{ \"user\": { \"username\": \"johndoe\", \"email\": \"johndoe@example.com\", \"password\": \"johndoepassword\" } }' | jq # response # { # \"user\": { # \"username\": \"johndoe\", # \"email\": \"johndoe@example.com\", # \"bio\": null, # \"image\": null, # \"token\": \"[REDACTED]\" # } # } # 2. user login request curl --location 'http://localhost:8085/api/users/login' \\  --header 'Content-Type: application/json' \\  --data-raw '{ \"user\":{ \"email\": \"johndoe@example.com\", \"password\": \"johndoepassword\" } }' | jq # response # { # \"user\": { # \"username\": \"johndoe\", # \"email\": \"johndoe@example.com\", # \"bio\": null, # \"image\": null, # \"token\": \"[REDACTED]\" # } # } ### Preparing necessary binaries and project structure We will use sqlc, a powerful SQL compiler, to convert raw SQL queries into go code. Install it with:\ngo install github.com/kyleconroy/sqlc/cmd/sqlc@latest Secondly, we use Task, an amazing task runner and also a simple Make alternative, to run tasks obviously. Install it using the below command:\ngo install github.com/go-task/task/v3/cmd/task@latest Thirdly, we use golang-migrate, to migrate our SQL queries:\ncd $HOME/Downloads curl -OL https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz tar -xf migrate.linux-amd64.tar.gz --one-top-level mv migrate.linux-amd64/migrate $HOME/go/bin rm -rf migrate.linux-amd64 migrate.linux-amd64.tar.gz # if successful, you should see the version migrate --version # 4.15.2 Now we prepare the project structure:\n# create a project folder and cd into it mkdir -p $HOME/go/src/conduit \u0026\u0026 cd $HOME/go/src/conduit # open vscode in the current folder code . # initialize go module go mod init conduit # create some initial folders mkdir -p db/{migration,query,sqlc} api config env # you will have the following look on tree command tree # . # ├── api # ├── config # ├── db # │ ├── migration # │ ├── query # │ └── sqlc # ├── env # └── go.mod Create docker-compose.yaml with the following definition since we use PostgreSQL: ```yaml version: '3.8' services: postgres: image: postgres environment: POSTGRES_DB: conduitdb POSTGRES_USER: demouser POSTGRES_PASSWORD: demopassword ports: - 5432:5432 expose: - 5432 networks: - postgres restart: unless-stopped Initial data modeling By looking at the spec, we can formulate our first table users . Before that let’s create our first migration files:\nmigrate create -ext sql -dir db/migration -seq create_users_table # this will create the two files tree db/migration # db/migration # ├── 000001_create_users_table.down.sql # └── 000001_create_users_table.up.sql Add some statements into 000001_create_users_table.up.sql like:\nCREATETABLEIFNOTEXISTS\"users\"(\"id\"textnotnull,\"username\"textnotnullunique,\"email\"textnotnullunique,\"password\"textnotnull,\"bio\"text,\"image\"text,\"created_at\"timestamptznotnulldefaultnow(),\"updated_at\"timestamptznotnulldefaultnow(),PRIMARYKEY(id));CREATEINDEXIFNOTEXISTS\"idx_users_username\"ON\"users\"(\"username\");CREATEINDEXIFNOTEXISTS\"idx_users_email\"ON\"users\"(\"email\");We added extra columns; id , created_at , updated_at and as you might’ve noticed the column id is not autoincremented. In fact, we could use type uuid , but it is too long so I prefer oklog/ulid and rs/xid packages.\nAnd also 000001_create_users_table.down.sql should be like this:\nDROPTABLEIFEXISTS\"users\";Now we can either migrate up using migrate cli tool or programmatically; let’s try cli way first:\n# create postgres container docker compose up -d # run migration up export POSTGRESQL_URL='postgres://demouser:demopassword@localhost:5432/conduitdb?sslmode=disable' migrate -database ${POSTGRESQL_URL} -path db/migration up The above creates users table. At this point, I normally would set up a database connection on pgAdmin since I would work with raw SQL queries a lot (prototyping, analyzing queries, and so on). In case you want to install pgAdmin:\ncd $HOME/Downloads curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg sudo sh -c 'echo \"deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main\"  /etc/apt/sources.list.d/pgadmin4.list \u0026\u0026 apt update' sudo apt install pgadmin4-desktop Implementing endpoints Now it is time to implement user authentication: registration and login. Before that create two files:\ntouch api/server.go api/user_handler.go Create a Server struct and its helper methods in api/server.go:\npackage api import \"github.com/gin-gonic/gin\" type Server struct { router *gin.Engine } func NewServer() *Server { server := \u0026Server{ router: gin.Default(), } return server } func (s *Server) MountHandlers() { api := s.router.Group(\"/api\") api.POST(\"/users\", s.RegisterUser) // TODO: implement RegisterUser  api.POST(\"/users/login\", s.LoginUser) // TODO: implement LoginUser  } func (s *Server) Start(addr string) error { return s.router.Run(addr) } And registration and login handlers go into api/user_handler.go : package api import \"github.com/gin-gonic/gin\" // user response type, common to both handlers  type userResponse struct { User struct { Username string `json:\"username\"` Email string `json:\"email\"` Bio *string `json:\"bio\"` Image *string `json:\"image\"` Token string `json:\"token\"` } `json:\"user\"` } // user registration handler starts here  type userRegisterReq struct { User struct { Username string `json:\"username\" binding:\"required\"` Email string `json:\"email\" binding:\"required,email\"` Password string `json:\"password\" binding:\"required\"` } `json:\"user\"` } func (s *Server) RegisterUser(c *gin.Context) { // TODO: POST /users - RegisterUser  panic(\"not implemented\") } // user login handler starts here  type userLoginReq struct { User struct { Email string `json:\"email\" binding:\"required,email\"` Password string `json:\"password\" binding:\"required\"` } `json:\"user\"` } func (s *Server) LoginUser(c *gin.Context) { // TODO: POST /users/login - LoginUser  panic(\"not implemented\") } Since we know the request and response types of those endpoints from the spec, I created the corresponding structs; userRegisterReq, userLoginReq and userResponse. Now I will take you through RegisterUser implementation steps:\nfunc (s *Server) RegisterUser(c *gin.Context) { // TODO: POST /users - RegisterUser  // 1. First bind and validate userRegisterReq  // 2. Second prepare a user data before storing it in database;  // for example, generating unique id for each user.  // 3. Store the user data in database  // 4. Lastly construct userResponse data to send out  } At first sight, we can be sure that the third step requires injecting a database connection into this method and having some sort of CreateUser method that belongs to that connection. Let’s generate that method using sqlc which requires at least two files; sqlc.yaml and and user.sql:\ntouch sqlc.yaml db/query/user.sql sqlc uses sqlc.yaml as a configuration file to generate go code and I will explain it later:\nversion:\"2\"sql:- engine:\"postgresql\"queries:\"./db/query\"schema:\"./db/migration\"gen:go:package:\"db\"sql_package:\"pgx/v4\"out:\"./db/sqlc\"emit_interface:trueemit_json_tags:trueemit_pointers_for_null_types:trueemit_result_struct_pointers:trueAnd db/query/user.sql contains queries to retrieve, save, update, and delete user-related data. Add the below statement:\n-- name: CreateUser :one INSERTINTOusers(id,username,email,password)VALUES($1,$2,$3,$4)RETURNING*;The comment— name: CreateUser :one is important for sqlc’s code generation logic. Since we’re all set, execute sqlc generate command, this will output files like this:\ngo mod tidy # first download pgx libraries tree # . # ├── api # │ ├── server.go # │ └── user_handler.go # ├── config # ├── db # │ ├── migration # │ │ ├── 000001_create_users_table.down.sql # │ │ └── 000001_create_users_table.up.sql # sqlc used the file ... # │ ├── query # │ │ └── user.sql # sqlc used the file to generate code # │ └── sqlc # │ ├── db.go # sqlc-generated code # │ ├── models.go # sqlc-generated code # │ ├── querier.go # sqlc-generated code  # │ └── user.sql.go # sqlc-generated code # ├── docker-compose.yaml # ├── env # ├── go.mod # ├── go.sum # └── sqlc.yaml # sqlc used the file to generate code Have a look at the generated codes in db/sqlc , which should be as:\n// 1. db.go  package db import ( \"context\" \"github.com/jackc/pgconn\" \"github.com/jackc/pgx/v4\" ) type DBTX interface { Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error) Query(context.Context, string, ...interface{}) (pgx.Rows, error) QueryRow(context.Context, string, ...interface{}) pgx.Row } func New(db DBTX) *Queries { return \u0026Queries{db: db} } // 2. models.go  package db import ( \"time\" ) type User struct { ID string `json:\"id\"` Username string `json:\"username\"` Email string `json:\"email\"` Password string `json:\"password\"` Bio *string `json:\"bio\"` Image *string `json:\"image\"` CreatedAt time.Time `json:\"created_at\"` UpdatedAt time.Time `json:\"updated_at\"` } // 3. querier.go  package db import ( \"context\" ) type Querier interface { CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) } var _ Querier = (*Queries)(nil) // 4. user.sql.go  package db import ( \"context\" ) const createUser = `-- name: CreateUser :one INSERT INTO users ( id, username, email, password ) VALUES ( $1, $2, $3, $4 ) RETURNING id, username, email, password, bio, image, created_at, updated_at ` type CreateUserParams struct { ID string `json:\"id\"` Username string `json:\"username\"` Email string `json:\"email\"` Password string `json:\"password\"` } func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) { row := q.db.QueryRow(ctx, createUser, arg.ID, arg.Username, arg.Email, arg.Password, ) var i User err := row.Scan( \u0026i.ID, \u0026i.Username, \u0026i.Email, \u0026i.Password, \u0026i.Bio, \u0026i.Image, \u0026i.CreatedAt, \u0026i.UpdatedAt, ) return \u0026i, err } As you saw, we obtained our sought (q *Queries) CreateUser method which can be injected into (s *Server) RegisterUser handler:\ntype Server struct { config config.Config router *gin.Engine store db.Querier } func (s *Server) RegisterUser(c *gin.Context) { var ( req userRegisterReq p db.CreateUserParams ) if err := req.bind(c, \u0026p); err != nil { c.JSON(http.StatusUnprocessableEntity, NewValidationError(err)) return } user, err := s.store.CreateUser(c, p) if err != nil { if apiErr := convertToApiErr(err); apiErr != nil { c.JSON(http.StatusUnprocessableEntity, NewValidationError(apiErr)) return } c.JSON(http.StatusInternalServerError, NewError(err)) return } c.JSON(http.StatusCreated, newUserResponse(user)) } Using db.Querier directly in API handlers is a quick and straightforward way, but it comes with its drawbacks such as handling database errors at the API level.\nConclusion In a similar way, the login handler can also be implemented. To make it fast-forward I added more finished code for reference: https://github.com/aliml92/go-web-demo.\nIn the next posts, we will explore task runner, database transactions and unit/integration tests, logging, and more.\nIf you want to see the finished conduit app, refer to this link: https://github.com/aliml92/realworld-gin-sqlc\n","wordCount":"1515","inLanguage":"en","image":"https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc.png","datePublished":"2023-05-07T09:44:20+09:00","dateModified":"2023-05-07T09:44:20+09:00","author":{"@type":"Person","name":"Alisher"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://alisherm.dev/posts/go-gin-sqlc-walkthrough/"},"publisher":{"@type":"Organization","name":"alisherm.dev","logo":{"@type":"ImageObject","url":"https://alisherm.dev/%3Clink%20/%20abs%20url%3E"}}}</script>
+# 1. user registration request curl --location &#39;http://localhost:8085/api/users&#39; \ --header &#39;Content-Type: application/json&#39; \ --data-raw &#39;{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://alisherm.dev/posts/go-gin-sqlc-walkthrough/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-05-07T09:44:20+09:00" />
+<meta property="article:modified_time" content="2023-05-07T09:44:20+09:00" />
+
+
+  
+  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="A simple go, gin, and sqlc combination walkthrough"/>
+<meta name="twitter:description" content="Well, in this post we will see a partial implementation of a medium.com-like app called Conduit. Take a brief look at the backend implementation specs. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:
+# 1. user registration request curl --location &#39;http://localhost:8085/api/users&#39; \ --header &#39;Content-Type: application/json&#39; \ --data-raw &#39;{ &#34;user&#34;: { &#34;username&#34;: &#34;johndoe&#34;, &#34;email&#34;: &#34;johndoe@example."/>
+
+  
+  
+  
+  <link rel="canonical" href="https://alisherm.dev/posts/go-gin-sqlc-walkthrough/" />
+  
+  
 </head>
-<body id=top>
-<script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add('dark'):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove('dark'):window.matchMedia('(prefers-color-scheme: dark)').matches&&document.body.classList.add('dark')</script>
-<header class=header>
-<nav class=nav>
-<div class=logo>
-<a href=https://alisherm.dev accesskey=h title="Home (Alt + H)">
-<img src=https://alisherm.dev/apple-touch-icon.png alt aria-label=logo height=35>Home</a>
-<div class=logo-switches>
-<button id=theme-toggle accesskey=t title="(Alt + T)"><svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-</button>
-</div>
-</div>
-<ul id=menu>
-<li>
-<a href=https://alisherm.dev/about/ title=about>
-<span>about</span>
-</a>
-</li>
-<li>
-<a href=https://alisherm.dev/posts/ title=blog>
-<span>blog</span>
-</a>
-</li>
-<li>
-<a href=https://alisherm.dev/notes/ title=notes>
-<span>notes</span>
-</a>
-</li>
-</ul>
-</nav>
-</header>
-<main class=main>
-<article class=post-single>
-<header class=post-header>
-<div class=breadcrumbs><a href=https://alisherm.dev>Home</a>&nbsp;»&nbsp;<a href=https://alisherm.dev/posts/>Posts</a></div>
-<h1 class=post-title>
-A simple go, gin, and sqlc combination walkthrough
-</h1>
-</header>
-<figure class=entry-cover>
-<img loading=lazy srcset="https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc_huce73161468f59ed01927937699d3f175_191315_360x0_resize_box_3.png 360w ,https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc_huce73161468f59ed01927937699d3f175_191315_480x0_resize_box_3.png 480w ,https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc_huce73161468f59ed01927937699d3f175_191315_720x0_resize_box_3.png 720w ,https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc_huce73161468f59ed01927937699d3f175_191315_1080x0_resize_box_3.png 1080w ,https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc.png 1378w" sizes="(min-width: 768px) 720px, 100vw" src=https://alisherm.dev/posts/go-gin-sqlc-walkthrough/images/go-gin-sqlc.png alt=go-gin-sqlc width=1378 height=677>
-<p>using sqlc with gin</p>
-</figure><div class=toc>
-<details open>
-<summary accesskey=c title="(Alt + C)">
-<span class=details>Table of Contents</span>
-</summary>
-<div class=inner><nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#initial-data-modeling>Initial data modeling</a></li>
-<li><a href=#implementing-endpoints>Implementing endpoints</a></li>
-<li><a href=#conclusion>Conclusion</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</details>
-</div>
-<div class=post-content><p>Well, in this post we will see a partial implementation of a medium.com-like app called <a href=https://github.com/gothinkster/realworld>Conduit</a>. Take a brief look at the backend implementation <a href=https://www.realworld.how/docs/specs/backend-specs/introduction>specs</a>. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    <span class=c1># 1. user registration request</span>
-    curl --location <span class=s1>&#39;http://localhost:8085/api/users&#39;</span> <span class=se>\
-</span><span class=se></span>            --header <span class=s1>&#39;Content-Type: application/json&#39;</span> <span class=se>\
-</span><span class=se></span>            --data-raw <span class=s1>&#39;{
-</span><span class=s1>                   &#34;user&#34;: {
-</span><span class=s1>                       &#34;username&#34;: &#34;johndoe&#34;,
-</span><span class=s1>                       &#34;email&#34;: &#34;johndoe@example.com&#34;,
-</span><span class=s1>                       &#34;password&#34;: &#34;johndoepassword&#34;
-</span><span class=s1>                    }
-</span><span class=s1>              }&#39;</span>  <span class=p>|</span>  jq
-    
-    <span class=c1># response</span>
-    <span class=c1># {</span>
-    <span class=c1>#   &#34;user&#34;: {</span>
-    <span class=c1>#     &#34;username&#34;: &#34;johndoe&#34;,</span>
-    <span class=c1>#     &#34;email&#34;: &#34;johndoe@example.com&#34;,</span>
-    <span class=c1>#     &#34;bio&#34;: null,</span>
-    <span class=c1>#     &#34;image&#34;: null,</span>
-    <span class=c1>#     &#34;token&#34;: &#34;[REDACTED]&#34;</span>
-    <span class=c1>#   }</span>
-    <span class=c1># }</span>
-    
-    <span class=c1># 2. user login request</span>
-    curl --location <span class=s1>&#39;http://localhost:8085/api/users/login&#39;</span> <span class=se>\
-</span><span class=se></span>            --header <span class=s1>&#39;Content-Type: application/json&#39;</span> <span class=se>\
-</span><span class=se></span>            --data-raw <span class=s1>&#39;{
-</span><span class=s1>                   &#34;user&#34;:{
-</span><span class=s1>                       &#34;email&#34;: &#34;johndoe@example.com&#34;,
-</span><span class=s1>                       &#34;password&#34;: &#34;johndoepassword&#34;
-</span><span class=s1>                   }
-</span><span class=s1>              }&#39;</span>  <span class=p>|</span>  jq
-    <span class=c1># response</span>
-    <span class=c1># {</span>
-    <span class=c1>#   &#34;user&#34;: {</span>
-    <span class=c1>#     &#34;username&#34;: &#34;johndoe&#34;,</span>
-    <span class=c1>#     &#34;email&#34;: &#34;johndoe@example.com&#34;,</span>
-    <span class=c1>#     &#34;bio&#34;: null,</span>
-    <span class=c1>#     &#34;image&#34;: null,</span>
-    <span class=c1>#     &#34;token&#34;: &#34;[REDACTED]&#34;</span>
-    <span class=c1>#   }</span>
-    <span class=c1># }</span>
 
-<span class=c1>### Preparing necessary binaries and project structure</span>
-</code></pre></div><p>We will use <a href=https://github.com/kyleconroy/sqlc>sqlc</a>, a powerful SQL compiler, to convert raw SQL queries into go code. Install it with:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
-</code></pre></div><p>Secondly, we use <a href=https://github.com/go-task/task>Task</a>, an amazing task runner and also a simple Make alternative, to run tasks obviously. Install it using the below command:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    go install github.com/go-task/task/v3/cmd/task@latest
-</code></pre></div><p>Thirdly, we use <a href=https://github.com/golang-migrate/migrate>golang-migrate</a>, to migrate our SQL queries:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    <span class=nb>cd</span> <span class=nv>$HOME</span>/Downloads
-    curl -OL https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz
-    tar -xf migrate.linux-amd64.tar.gz --one-top-level
-    mv migrate.linux-amd64/migrate <span class=nv>$HOME</span>/go/bin
-    rm -rf migrate.linux-amd64 migrate.linux-amd64.tar.gz
-    
-    <span class=c1># if successful, you should see the version</span>
-    migrate --version
-    <span class=c1># 4.15.2</span>
-</code></pre></div><p>Now we prepare the project structure:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    <span class=c1># create a project folder and cd into it</span>
-    mkdir -p <span class=nv>$HOME</span>/go/src/conduit <span class=o>&amp;&amp;</span> <span class=nb>cd</span> <span class=nv>$HOME</span>/go/src/conduit 
-    
-    <span class=c1># open vscode in the current folder</span>
-    code . 
-    
-    <span class=c1># initialize go module</span>
-    go mod init conduit
-    
-    <span class=c1># create some initial folders</span>
-    mkdir -p db/<span class=o>{</span>migration,query,sqlc<span class=o>}</span> api config env 
-    
-    <span class=c1># you will have the following look on tree command</span>
-    tree
-    <span class=c1># .</span>
-    <span class=c1># ├── api</span>
-    <span class=c1># ├── config</span>
-    <span class=c1># ├── db</span>
-    <span class=c1># │   ├── migration</span>
-    <span class=c1># │   ├── query</span>
-    <span class=c1># │   └── sqlc</span>
-    <span class=c1># ├── env</span>
-    <span class=c1># └── go.mod</span>
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[4.5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-[1px] text-2xl font-semibold"
+      href="https://alisherm.dev"
+      >Home</a
+    >
+    <div
+      class="btn-dark text-[0] ml-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.png)_left_center/_auto_theme('spacing.6')_no-repeat] [transition:_background-position_0.4s_steps(5)] dark:[background-position:right]"
+      role="button"
+      aria-label="Dark"
+    ></div>
+  </div>
 
-Create docker-compose.yaml with the following definition since we use PostgreSQL:
-<span class=sb>```</span>yaml
-    version: <span class=s1>&#39;3.8&#39;</span>
+  <div
+    class="btn-menu relative z-50 -mr-8 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+    role="button"
+    aria-label="Menu"
+  ></div>
+
+  
+
+  <script>
     
-    services:
-      postgres:
-        image: postgres
-        environment:
-          POSTGRES_DB: conduitdb
-          POSTGRES_USER: demouser
-          POSTGRES_PASSWORD: demopassword
-        ports:
-          - 5432:5432
-        expose:
-          - <span class=m>5432</span>          
-        networks:
-          - postgres
-        restart: unless-stopped
-</code></pre></div><h3 id=initial-data-modeling>Initial data modeling<a hidden class=anchor aria-hidden=true href=#initial-data-modeling>#</a></h3>
-<p>By looking at the <a href=https://www.realworld.how/docs/specs/backend-specs/api-response-format#users-for-authentication>spec</a>, we can formulate our first table users . Before that let’s create our first migration files:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    migrate create -ext sql -dir db/migration -seq create_users_table
-    <span class=c1># this will create the two files</span>
-    tree db/migration
-    <span class=c1># db/migration</span>
-    <span class=c1># ├── 000001_create_users_table.down.sql</span>
-    <span class=c1># └── 000001_create_users_table.up.sql</span>
-</code></pre></div><p>Add some statements into 000001_create_users_table.up.sql like:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=w>    </span><span class=k>CREATE</span><span class=w> </span><span class=k>TABLE</span><span class=w> </span><span class=k>IF</span><span class=w> </span><span class=k>NOT</span><span class=w> </span><span class=k>EXISTS</span><span class=w> </span><span class=s2>&#34;users&#34;</span><span class=w> </span><span class=p>(</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;id&#34;</span><span class=w> </span><span class=nb>text</span><span class=w> </span><span class=k>not</span><span class=w> </span><span class=k>null</span><span class=p>,</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;username&#34;</span><span class=w> </span><span class=nb>text</span><span class=w> </span><span class=k>not</span><span class=w> </span><span class=k>null</span><span class=w> </span><span class=k>unique</span><span class=p>,</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;email&#34;</span><span class=w> </span><span class=nb>text</span><span class=w> </span><span class=k>not</span><span class=w> </span><span class=k>null</span><span class=w> </span><span class=k>unique</span><span class=p>,</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;password&#34;</span><span class=w> </span><span class=nb>text</span><span class=w> </span><span class=k>not</span><span class=w> </span><span class=k>null</span><span class=p>,</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;bio&#34;</span><span class=w> </span><span class=nb>text</span><span class=p>,</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;image&#34;</span><span class=w> </span><span class=nb>text</span><span class=p>,</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;created_at&#34;</span><span class=w> </span><span class=n>timestamptz</span><span class=w> </span><span class=k>not</span><span class=w> </span><span class=k>null</span><span class=w> </span><span class=k>default</span><span class=w> </span><span class=n>now</span><span class=p>(),</span><span class=w>
-</span><span class=w>      </span><span class=s2>&#34;updated_at&#34;</span><span class=w> </span><span class=n>timestamptz</span><span class=w> </span><span class=k>not</span><span class=w> </span><span class=k>null</span><span class=w> </span><span class=k>default</span><span class=w> </span><span class=n>now</span><span class=p>(),</span><span class=w>
-</span><span class=w>    
-</span><span class=w>      </span><span class=k>PRIMARY</span><span class=w> </span><span class=k>KEY</span><span class=w> </span><span class=p>(</span><span class=n>id</span><span class=p>)</span><span class=w>
-</span><span class=w>    </span><span class=p>);</span><span class=w>
-</span><span class=w>    
-</span><span class=w>    </span><span class=k>CREATE</span><span class=w> </span><span class=k>INDEX</span><span class=w> </span><span class=k>IF</span><span class=w> </span><span class=k>NOT</span><span class=w> </span><span class=k>EXISTS</span><span class=w> </span><span class=s2>&#34;idx_users_username&#34;</span><span class=w> </span><span class=k>ON</span><span class=w> </span><span class=s2>&#34;users&#34;</span><span class=w> </span><span class=p>(</span><span class=s2>&#34;username&#34;</span><span class=p>);</span><span class=w>
-</span><span class=w>    </span><span class=k>CREATE</span><span class=w> </span><span class=k>INDEX</span><span class=w> </span><span class=k>IF</span><span class=w> </span><span class=k>NOT</span><span class=w> </span><span class=k>EXISTS</span><span class=w> </span><span class=s2>&#34;idx_users_email&#34;</span><span class=w> </span><span class=k>ON</span><span class=w> </span><span class=s2>&#34;users&#34;</span><span class=w> </span><span class=p>(</span><span class=s2>&#34;email&#34;</span><span class=p>);</span><span class=w>
-</span></code></pre></div><p>We added extra columns; id , created_at , updated_at and as you might’ve noticed the column id is not autoincremented. In fact, we could use type uuid , but it is too long so I prefer <a href=https://github.com/oklog/ulid>oklog/ulid</a> and <a href=https://github.com/rs/xid>rs/xid</a> packages.</p>
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = '#faf8f1'.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+    <nav class="lg:ml-12 lg:flex lg:flex-row lg:items-center lg:space-x-6">
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/about/"
+        >about</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/posts/"
+        >blog</a
+      >
+      
+    </nav>
+    
+
+    
+    <nav
+      class="mt-12 flex justify-center space-x-10 dark:invert lg:ml-12 lg:mt-0 lg:items-center lg:space-x-6"
+    >
+      
+      <a
+        class="h-8 w-8 text-[0] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href="https://github.com/aliml92"
+        target="_blank"
+        rel="me"
+      >
+        github
+      </a>
+      
+    </nav>
+    
+  </div>
+</header>
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-9rem)] max-w-3xl px-8 pb-16 pt-12 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-16">
+    <h1 class="!my-0 pb-2.5">A simple go, gin, and sqlc combination walkthrough</h1>
+
+    
+    <div class="text-sm antialiased opacity-60">
+      
+      <time>May 7, 2023</time>
+      
+      
+      
+      
+    </div>
+    
+  </header>
+
+  <section><p>Well, in this post we will see a partial implementation of a medium.com-like app called <a href="https://github.com/gothinkster/realworld">Conduit</a>. Take a brief look at the backend implementation <a href="https://www.realworld.how/docs/specs/backend-specs/introduction">specs</a>. As you can see, there are APIs for users, articles, tags, and so on. For now, we will implement user registration and login endpoints; api/users and api/users/login. In the end, we will be able to execute the two curl requests successfully:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    <span style="color:#75715e"># 1. user registration request</span>
+</span></span><span style="display:flex;"><span>    curl --location <span style="color:#e6db74">&#39;http://localhost:8085/api/users&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>            --header <span style="color:#e6db74">&#39;Content-Type: application/json&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>            --data-raw <span style="color:#e6db74">&#39;{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                   &#34;user&#34;: {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                       &#34;username&#34;: &#34;johndoe&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                       &#34;email&#34;: &#34;johndoe@example.com&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                       &#34;password&#34;: &#34;johndoepassword&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              }&#39;</span>  |  jq
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># response</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># {</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   &#34;user&#34;: {</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;username&#34;: &#34;johndoe&#34;,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;email&#34;: &#34;johndoe@example.com&#34;,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;bio&#34;: null,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;image&#34;: null,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;token&#34;: &#34;[REDACTED]&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   }</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># }</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. user login request</span>
+</span></span><span style="display:flex;"><span>    curl --location <span style="color:#e6db74">&#39;http://localhost:8085/api/users/login&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>            --header <span style="color:#e6db74">&#39;Content-Type: application/json&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>            --data-raw <span style="color:#e6db74">&#39;{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                   &#34;user&#34;:{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                       &#34;email&#34;: &#34;johndoe@example.com&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                       &#34;password&#34;: &#34;johndoepassword&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                   }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              }&#39;</span>  |  jq
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># response</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># {</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   &#34;user&#34;: {</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;username&#34;: &#34;johndoe&#34;,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;email&#34;: &#34;johndoe@example.com&#34;,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;bio&#34;: null,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;image&#34;: null,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#34;token&#34;: &#34;[REDACTED]&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   }</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># }</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">### Preparing necessary binaries and project structure</span>
+</span></span></code></pre></div><p>We will use <a href="https://github.com/kyleconroy/sqlc">sqlc</a>, a powerful SQL compiler, to convert raw SQL queries into go code. Install it with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
+</span></span></code></pre></div><p>Secondly, we use <a href="https://github.com/go-task/task">Task</a>, an amazing task runner and also a simple Make alternative, to run tasks obviously. Install it using the below command:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    go install github.com/go-task/task/v3/cmd/task@latest
+</span></span></code></pre></div><p>Thirdly, we use <a href="https://github.com/golang-migrate/migrate">golang-migrate</a>, to migrate our SQL queries:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    cd $HOME/Downloads
+</span></span><span style="display:flex;"><span>    curl -OL https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz
+</span></span><span style="display:flex;"><span>    tar -xf migrate.linux-amd64.tar.gz --one-top-level
+</span></span><span style="display:flex;"><span>    mv migrate.linux-amd64/migrate $HOME/go/bin
+</span></span><span style="display:flex;"><span>    rm -rf migrate.linux-amd64 migrate.linux-amd64.tar.gz
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># if successful, you should see the version</span>
+</span></span><span style="display:flex;"><span>    migrate --version
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4.15.2</span>
+</span></span></code></pre></div><p>Now we prepare the project structure:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    <span style="color:#75715e"># create a project folder and cd into it</span>
+</span></span><span style="display:flex;"><span>    mkdir -p $HOME/go/src/conduit <span style="color:#f92672">&amp;&amp;</span> cd $HOME/go/src/conduit 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># open vscode in the current folder</span>
+</span></span><span style="display:flex;"><span>    code . 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># initialize go module</span>
+</span></span><span style="display:flex;"><span>    go mod init conduit
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># create some initial folders</span>
+</span></span><span style="display:flex;"><span>    mkdir -p db/<span style="color:#f92672">{</span>migration,query,sqlc<span style="color:#f92672">}</span> api config env 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># you will have the following look on tree command</span>
+</span></span><span style="display:flex;"><span>    tree
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># .</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── api</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── config</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── db</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   ├── migration</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   ├── query</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   └── sqlc</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── env</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># └── go.mod</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Create docker-compose.yaml with the following definition since we use PostgreSQL:
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">```</span>yaml
+</span></span><span style="display:flex;"><span>    version: <span style="color:#e6db74">&#39;3.8&#39;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    services:
+</span></span><span style="display:flex;"><span>      postgres:
+</span></span><span style="display:flex;"><span>        image: postgres
+</span></span><span style="display:flex;"><span>        environment:
+</span></span><span style="display:flex;"><span>          POSTGRES_DB: conduitdb
+</span></span><span style="display:flex;"><span>          POSTGRES_USER: demouser
+</span></span><span style="display:flex;"><span>          POSTGRES_PASSWORD: demopassword
+</span></span><span style="display:flex;"><span>        ports:
+</span></span><span style="display:flex;"><span>          - 5432:5432
+</span></span><span style="display:flex;"><span>        expose:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">5432</span>          
+</span></span><span style="display:flex;"><span>        networks:
+</span></span><span style="display:flex;"><span>          - postgres
+</span></span><span style="display:flex;"><span>        restart: unless-stopped
+</span></span></code></pre></div><h3 id="initial-data-modeling">Initial data modeling</h3>
+<p>By looking at the <a href="https://www.realworld.how/docs/specs/backend-specs/api-response-format#users-for-authentication">spec</a>, we can formulate our first table users . Before that let’s create our first migration files:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    migrate create -ext sql -dir db/migration -seq create_users_table
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># this will create the two files</span>
+</span></span><span style="display:flex;"><span>    tree db/migration
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># db/migration</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── 000001_create_users_table.down.sql</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># └── 000001_create_users_table.up.sql</span>
+</span></span></code></pre></div><p>Add some statements into 000001_create_users_table.up.sql like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>    <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">IF</span> <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">EXISTS</span> <span style="color:#e6db74">&#34;users&#34;</span> (
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;id&#34;</span> text <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;username&#34;</span> text <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">unique</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;email&#34;</span> text <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">unique</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;password&#34;</span> text <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;bio&#34;</span> text,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;image&#34;</span> text,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;created_at&#34;</span> timestamptz <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">default</span> now(),
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;updated_at&#34;</span> timestamptz <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">default</span> now(),
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (id)
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">INDEX</span> <span style="color:#66d9ef">IF</span> <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">EXISTS</span> <span style="color:#e6db74">&#34;idx_users_username&#34;</span> <span style="color:#66d9ef">ON</span> <span style="color:#e6db74">&#34;users&#34;</span> (<span style="color:#e6db74">&#34;username&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">INDEX</span> <span style="color:#66d9ef">IF</span> <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">EXISTS</span> <span style="color:#e6db74">&#34;idx_users_email&#34;</span> <span style="color:#66d9ef">ON</span> <span style="color:#e6db74">&#34;users&#34;</span> (<span style="color:#e6db74">&#34;email&#34;</span>);
+</span></span></code></pre></div><p>We added extra columns; id , created_at , updated_at and as you might’ve noticed the column id is not autoincremented. In fact, we could use type uuid , but it is too long so I prefer <a href="https://github.com/oklog/ulid">oklog/ulid</a> and <a href="https://github.com/rs/xid">rs/xid</a> packages.</p>
 <p>And also 000001_create_users_table.down.sql should be like this:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=w>    </span><span class=k>DROP</span><span class=w> </span><span class=k>TABLE</span><span class=w> </span><span class=k>IF</span><span class=w> </span><span class=k>EXISTS</span><span class=w> </span><span class=s2>&#34;users&#34;</span><span class=p>;</span><span class=w>
-</span></code></pre></div><p>Now we can either migrate up using migrate cli tool or programmatically; let’s try cli way first:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    <span class=c1># create postgres container</span>
-    docker compose up -d 
-    <span class=c1># run migration up</span>
-    <span class=nb>export</span> <span class=nv>POSTGRESQL_URL</span><span class=o>=</span><span class=s1>&#39;postgres://demouser:demopassword@localhost:5432/conduitdb?sslmode=disable&#39;</span>  
-    migrate -database <span class=si>${</span><span class=nv>POSTGRESQL_URL</span><span class=si>}</span> -path db/migration up  
-</code></pre></div><p>The above creates users table. At this point, I normally would set up a database connection on pgAdmin since I would work with raw SQL queries a lot (prototyping, analyzing queries, and so on). In case you want to install pgAdmin:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    <span class=nb>cd</span> <span class=nv>$HOME</span>/Downloads
-    curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub <span class=p>|</span> sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
-    sudo sh -c <span class=s1>&#39;echo &#34;deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main&#34; &gt; /etc/apt/sources.list.d/pgadmin4.list &amp;&amp; apt update&#39;</span>
-    sudo apt install pgadmin4-desktop
-</code></pre></div><h3 id=implementing-endpoints>Implementing endpoints<a hidden class=anchor aria-hidden=true href=#implementing-endpoints>#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>    <span style="color:#66d9ef">DROP</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">IF</span> <span style="color:#66d9ef">EXISTS</span> <span style="color:#e6db74">&#34;users&#34;</span>;
+</span></span></code></pre></div><p>Now we can either migrate up using migrate cli tool or programmatically; let’s try cli way first:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    <span style="color:#75715e"># create postgres container</span>
+</span></span><span style="display:flex;"><span>    docker compose up -d 
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># run migration up</span>
+</span></span><span style="display:flex;"><span>    export POSTGRESQL_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;postgres://demouser:demopassword@localhost:5432/conduitdb?sslmode=disable&#39;</span>  
+</span></span><span style="display:flex;"><span>    migrate -database <span style="color:#e6db74">${</span>POSTGRESQL_URL<span style="color:#e6db74">}</span> -path db/migration up  
+</span></span></code></pre></div><p>The above creates users table. At this point, I normally would set up a database connection on pgAdmin since I would work with raw SQL queries a lot (prototyping, analyzing queries, and so on). In case you want to install pgAdmin:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    cd $HOME/Downloads
+</span></span><span style="display:flex;"><span>    curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+</span></span><span style="display:flex;"><span>    sudo sh -c <span style="color:#e6db74">&#39;echo &#34;deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main&#34; &gt; /etc/apt/sources.list.d/pgadmin4.list &amp;&amp; apt update&#39;</span>
+</span></span><span style="display:flex;"><span>    sudo apt install pgadmin4-desktop
+</span></span></code></pre></div><h3 id="implementing-endpoints">Implementing endpoints</h3>
 <p>Now it is time to implement user authentication: registration and login. Before that create two files:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    touch api/server.go api/user_handler.go
-</code></pre></div><p>Create a Server struct and its helper methods in api/server.go:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go>    <span class=kn>package</span> <span class=nx>api</span>
-    
-    <span class=kn>import</span> <span class=s>&#34;github.com/gin-gonic/gin&#34;</span>
-    
-    <span class=kd>type</span> <span class=nx>Server</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>router</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Engine</span>
-    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=nf>NewServer</span><span class=p>()</span> <span class=o>*</span><span class=nx>Server</span> <span class=p>{</span>
-       <span class=nx>server</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span>
-          <span class=nx>router</span><span class=p>:</span> <span class=nx>gin</span><span class=p>.</span><span class=nf>Default</span><span class=p>(),</span>
-       <span class=p>}</span>
-       <span class=k>return</span> <span class=nx>server</span>
-    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=nf>MountHandlers</span><span class=p>()</span> <span class=p>{</span>
-       <span class=nx>api</span> <span class=o>:=</span> <span class=nx>s</span><span class=p>.</span><span class=nx>router</span><span class=p>.</span><span class=nf>Group</span><span class=p>(</span><span class=s>&#34;/api&#34;</span><span class=p>)</span>
-       <span class=nx>api</span><span class=p>.</span><span class=nf>POST</span><span class=p>(</span><span class=s>&#34;/users&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>RegisterUser</span><span class=p>)</span>    <span class=c1>// TODO: implement RegisterUser
-</span><span class=c1></span>       <span class=nx>api</span><span class=p>.</span><span class=nf>POST</span><span class=p>(</span><span class=s>&#34;/users/login&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>.</span><span class=nx>LoginUser</span><span class=p>)</span> <span class=c1>// TODO: implement LoginUser
-</span><span class=c1></span>    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=nf>Start</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
-       <span class=k>return</span> <span class=nx>s</span><span class=p>.</span><span class=nx>router</span><span class=p>.</span><span class=nf>Run</span><span class=p>(</span><span class=nx>addr</span><span class=p>)</span>
-    <span class=p>}</span>
-
-<span class=nx>And</span> <span class=nx>registration</span> <span class=nx>and</span> <span class=nx>login</span> <span class=nx>handlers</span> <span class=k>go</span> <span class=nx>into</span> <span class=nx>api</span><span class=o>/</span><span class=nx>user_handler</span><span class=p>.</span><span class=k>go</span> <span class=p>:</span>
-
-    <span class=kn>package</span> <span class=nx>api</span>
-    
-    <span class=kn>import</span> <span class=s>&#34;github.com/gin-gonic/gin&#34;</span>
-    
-    <span class=c1>// user response type, common to both handlers
-</span><span class=c1></span>    <span class=kd>type</span> <span class=nx>userResponse</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>User</span> <span class=kd>struct</span> <span class=p>{</span>
-          <span class=nx>Username</span> <span class=kt>string</span>  <span class=s>`json:&#34;username&#34;`</span>
-          <span class=nx>Email</span>    <span class=kt>string</span>  <span class=s>`json:&#34;email&#34;`</span>
-          <span class=nx>Bio</span>      <span class=o>*</span><span class=kt>string</span> <span class=s>`json:&#34;bio&#34;`</span>
-          <span class=nx>Image</span>    <span class=o>*</span><span class=kt>string</span> <span class=s>`json:&#34;image&#34;`</span>
-          <span class=nx>Token</span>    <span class=kt>string</span>  <span class=s>`json:&#34;token&#34;`</span>
-       <span class=p>}</span> <span class=s>`json:&#34;user&#34;`</span>
-     <span class=p>}</span>
-    
-    <span class=c1>// user registration handler starts here
-</span><span class=c1></span>    <span class=kd>type</span> <span class=nx>userRegisterReq</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>User</span> <span class=kd>struct</span> <span class=p>{</span>
-          <span class=nx>Username</span> <span class=kt>string</span> <span class=s>`json:&#34;username&#34; binding:&#34;required&#34;`</span>
-          <span class=nx>Email</span>    <span class=kt>string</span> <span class=s>`json:&#34;email&#34; binding:&#34;required,email&#34;`</span>
-          <span class=nx>Password</span> <span class=kt>string</span> <span class=s>`json:&#34;password&#34; binding:&#34;required&#34;`</span>
-       <span class=p>}</span> <span class=s>`json:&#34;user&#34;`</span>
-    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=nf>RegisterUser</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span> <span class=c1>// TODO: POST /users - RegisterUser
-</span><span class=c1></span>       <span class=nb>panic</span><span class=p>(</span><span class=s>&#34;not implemented&#34;</span><span class=p>)</span>
-    <span class=p>}</span>
-    
-    <span class=c1>// user login handler starts here
-</span><span class=c1></span>    <span class=kd>type</span> <span class=nx>userLoginReq</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>User</span> <span class=kd>struct</span> <span class=p>{</span>
-          <span class=nx>Email</span>    <span class=kt>string</span> <span class=s>`json:&#34;email&#34; binding:&#34;required,email&#34;`</span>
-          <span class=nx>Password</span> <span class=kt>string</span> <span class=s>`json:&#34;password&#34; binding:&#34;required&#34;`</span>
-         <span class=p>}</span> <span class=s>`json:&#34;user&#34;`</span>
-      <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=nf>LoginUser</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span>  <span class=c1>// TODO: POST /users/login - LoginUser
-</span><span class=c1></span>       <span class=nb>panic</span><span class=p>(</span><span class=s>&#34;not implemented&#34;</span><span class=p>)</span>
-    <span class=p>}</span>
-</code></pre></div><p>Since we know the request and response types of those endpoints from the <a href=https://www.realworld.how/docs/specs/backend-specs/endpoints/>spec</a>, I created the corresponding structs; userRegisterReq, userLoginReq and userResponse. Now I will take you through RegisterUser implementation steps:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go>    <span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=nf>RegisterUser</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span> <span class=c1>// TODO: POST /users - RegisterUser
-</span><span class=c1></span>        <span class=c1>//  1. First bind and validate userRegisterReq
-</span><span class=c1></span>        <span class=c1>//  2. Second prepare a user data before storing it in database;
-</span><span class=c1></span>        <span class=c1>//     for example, generating unique id for each user.
-</span><span class=c1></span>        <span class=c1>//  3. Store the user data in database
-</span><span class=c1></span>        <span class=c1>//  4. Lastly construct userResponse data to send out
-</span><span class=c1></span>    <span class=p>}</span>
-</code></pre></div><p>At first sight, we can be sure that the third step requires injecting a database connection into this method and having some sort of CreateUser method that belongs to that connection. Let’s generate that method using sqlc which requires at least two files; sqlc.yaml and and user.sql:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    touch sqlc.yaml db/query/user.sql
-</code></pre></div><p>sqlc uses sqlc.yaml as a configuration file to generate go code and I will explain it later:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=w>    </span><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2&#34;</span><span class=w>
-</span><span class=w>    
-</span><span class=w>    </span><span class=nt>sql</span><span class=p>:</span><span class=w>
-</span><span class=w>      </span>- <span class=nt>engine</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;postgresql&#34;</span><span class=w>
-</span><span class=w>        </span><span class=nt>queries</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;./db/query&#34;</span><span class=w>
-</span><span class=w>        </span><span class=nt>schema</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;./db/migration&#34;</span><span class=w>
-</span><span class=w>        </span><span class=nt>gen</span><span class=p>:</span><span class=w>
-</span><span class=w>          </span><span class=nt>go</span><span class=p>:</span><span class=w>
-</span><span class=w>            </span><span class=nt>package</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;db&#34;</span><span class=w>
-</span><span class=w>            </span><span class=nt>sql_package</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;pgx/v4&#34;</span><span class=w>
-</span><span class=w>            </span><span class=nt>out</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;./db/sqlc&#34;</span><span class=w>
-</span><span class=w>            </span><span class=nt>emit_interface</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>                 
-</span><span class=w>            </span><span class=nt>emit_json_tags</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>                 
-</span><span class=w>            </span><span class=nt>emit_pointers_for_null_types</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
-</span><span class=w>            </span><span class=nt>emit_result_struct_pointers</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
-</span></code></pre></div><p>And db/query/user.sql contains queries to retrieve, save, update, and delete user-related data. Add the below statement:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=w>    </span><span class=c1>-- name: CreateUser :one
-</span><span class=c1></span><span class=w>    </span><span class=k>INSERT</span><span class=w> </span><span class=k>INTO</span><span class=w> </span><span class=n>users</span><span class=w> </span><span class=p>(</span><span class=w>
-</span><span class=w>        </span><span class=n>id</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=n>username</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=n>email</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=n>password</span><span class=w> 
-</span><span class=w>    </span><span class=p>)</span><span class=w> </span><span class=k>VALUES</span><span class=w> </span><span class=p>(</span><span class=w>
-</span><span class=w>        </span><span class=err>$</span><span class=mi>1</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=err>$</span><span class=mi>2</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=err>$</span><span class=mi>3</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=err>$</span><span class=mi>4</span><span class=w>
-</span><span class=w>    </span><span class=p>)</span><span class=w> 
-</span><span class=w>    </span><span class=n>RETURNING</span><span class=w> </span><span class=o>*</span><span class=p>;</span><span class=w>
-</span></code></pre></div><p>The comment— name: CreateUser :one is important for sqlc’s code generation logic. Since we’re all set, execute sqlc generate command, this will output files like this:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>    go mod tidy <span class=c1># first download pgx libraries</span>
-    
-    tree
-    <span class=c1># .</span>
-    <span class=c1># ├── api</span>
-    <span class=c1># │   ├── server.go</span>
-    <span class=c1># │   └── user_handler.go</span>
-    <span class=c1># ├── config</span>
-    <span class=c1># ├── db</span>
-    <span class=c1># │   ├── migration</span>
-    <span class=c1># │   │   ├── 000001_create_users_table.down.sql</span>
-    <span class=c1># │   │   └── 000001_create_users_table.up.sql   # sqlc used the file ...</span>
-    <span class=c1># │   ├── query</span>
-    <span class=c1># │   │   └── user.sql          # sqlc used the file to generate code</span>
-    <span class=c1># │   └── sqlc</span>
-    <span class=c1># │       ├── db.go             # sqlc-generated code</span>
-    <span class=c1># │       ├── models.go         # sqlc-generated code</span>
-    <span class=c1># │       ├── querier.go        # sqlc-generated code </span>
-    <span class=c1># │       └── user.sql.go       # sqlc-generated code</span>
-    <span class=c1># ├── docker-compose.yaml</span>
-    <span class=c1># ├── env</span>
-    <span class=c1># ├── go.mod</span>
-    <span class=c1># ├── go.sum</span>
-    <span class=c1># └── sqlc.yaml                 # sqlc used the file to generate code</span>
-</code></pre></div><p>Have a look at the generated codes in db/sqlc , which should be as:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go>    <span class=c1>// 1. db.go
-</span><span class=c1></span>    
-    <span class=kn>package</span> <span class=nx>db</span>
-    
-    <span class=kn>import</span> <span class=p>(</span>
-       <span class=s>&#34;context&#34;</span>
-    
-       <span class=s>&#34;github.com/jackc/pgconn&#34;</span>
-       <span class=s>&#34;github.com/jackc/pgx/v4&#34;</span>
-    <span class=p>)</span>
-    
-    <span class=kd>type</span> <span class=nx>DBTX</span> <span class=kd>interface</span> <span class=p>{</span>
-       <span class=nf>Exec</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=kt>string</span><span class=p>,</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span> <span class=p>(</span><span class=nx>pgconn</span><span class=p>.</span><span class=nx>CommandTag</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-       <span class=nf>Query</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=kt>string</span><span class=p>,</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span> <span class=p>(</span><span class=nx>pgx</span><span class=p>.</span><span class=nx>Rows</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-       <span class=nf>QueryRow</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=kt>string</span><span class=p>,</span> <span class=o>...</span><span class=kd>interface</span><span class=p>{})</span> <span class=nx>pgx</span><span class=p>.</span><span class=nx>Row</span>
-    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=nf>New</span><span class=p>(</span><span class=nx>db</span> <span class=nx>DBTX</span><span class=p>)</span> <span class=o>*</span><span class=nx>Queries</span> <span class=p>{</span>
-       <span class=k>return</span> <span class=o>&amp;</span><span class=nx>Queries</span><span class=p>{</span><span class=nx>db</span><span class=p>:</span> <span class=nx>db</span><span class=p>}</span>
-    <span class=p>}</span>
-    
-    
-    
-    <span class=c1>// 2. models.go
-</span><span class=c1></span>    
-    <span class=kn>package</span> <span class=nx>db</span>
-    
-    <span class=kn>import</span> <span class=p>(</span>
-       <span class=s>&#34;time&#34;</span>
-    <span class=p>)</span>
-    
-    <span class=kd>type</span> <span class=nx>User</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>ID</span>        <span class=kt>string</span>    <span class=s>`json:&#34;id&#34;`</span>
-       <span class=nx>Username</span>  <span class=kt>string</span>    <span class=s>`json:&#34;username&#34;`</span>
-       <span class=nx>Email</span>     <span class=kt>string</span>    <span class=s>`json:&#34;email&#34;`</span>
-       <span class=nx>Password</span>  <span class=kt>string</span>    <span class=s>`json:&#34;password&#34;`</span>
-       <span class=nx>Bio</span>       <span class=o>*</span><span class=kt>string</span>   <span class=s>`json:&#34;bio&#34;`</span>
-       <span class=nx>Image</span>     <span class=o>*</span><span class=kt>string</span>   <span class=s>`json:&#34;image&#34;`</span>
-       <span class=nx>CreatedAt</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span> <span class=s>`json:&#34;created_at&#34;`</span>
-       <span class=nx>UpdatedAt</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span> <span class=s>`json:&#34;updated_at&#34;`</span>
-    <span class=p>}</span>
-    
-    
-    
-    <span class=c1>// 3. querier.go
-</span><span class=c1></span>    
-    <span class=kn>package</span> <span class=nx>db</span>
-    
-    <span class=kn>import</span> <span class=p>(</span>
-       <span class=s>&#34;context&#34;</span>
-    <span class=p>)</span>
-    
-    <span class=kd>type</span> <span class=nx>Querier</span> <span class=kd>interface</span> <span class=p>{</span>
-       <span class=nf>CreateUser</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>arg</span> <span class=nx>CreateUserParams</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>User</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span>
-    <span class=p>}</span>
-    
-    <span class=kd>var</span> <span class=nx>_</span> <span class=nx>Querier</span> <span class=p>=</span> <span class=p>(</span><span class=o>*</span><span class=nx>Queries</span><span class=p>)(</span><span class=kc>nil</span><span class=p>)</span>
-    
-    
-    
-    <span class=c1>// 4. user.sql.go
-</span><span class=c1></span>    
-    <span class=kn>package</span> <span class=nx>db</span>
-    
-    <span class=kn>import</span> <span class=p>(</span>
-     <span class=s>&#34;context&#34;</span>
-    <span class=p>)</span>
-    
-    <span class=kd>const</span> <span class=nx>createUser</span> <span class=p>=</span> <span class=s>`-- name: CreateUser :one
-</span><span class=s>    INSERT INTO users (
-</span><span class=s>        id,
-</span><span class=s>        username,
-</span><span class=s>        email,
-</span><span class=s>        password 
-</span><span class=s>    ) VALUES (
-</span><span class=s>        $1,
-</span><span class=s>        $2,
-</span><span class=s>        $3,
-</span><span class=s>        $4
-</span><span class=s>    ) 
-</span><span class=s>    RETURNING id, username, email, password, bio, image, created_at, updated_at
-</span><span class=s>    `</span>
-    
-    <span class=kd>type</span> <span class=nx>CreateUserParams</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>ID</span>       <span class=kt>string</span> <span class=s>`json:&#34;id&#34;`</span>
-       <span class=nx>Username</span> <span class=kt>string</span> <span class=s>`json:&#34;username&#34;`</span>
-       <span class=nx>Email</span>    <span class=kt>string</span> <span class=s>`json:&#34;email&#34;`</span>
-       <span class=nx>Password</span> <span class=kt>string</span> <span class=s>`json:&#34;password&#34;`</span>
-    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=p>(</span><span class=nx>q</span> <span class=o>*</span><span class=nx>Queries</span><span class=p>)</span> <span class=nf>CreateUser</span><span class=p>(</span><span class=nx>ctx</span> <span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span> <span class=nx>arg</span> <span class=nx>CreateUserParams</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>User</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
-       <span class=nx>row</span> <span class=o>:=</span> <span class=nx>q</span><span class=p>.</span><span class=nx>db</span><span class=p>.</span><span class=nf>QueryRow</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span> <span class=nx>createUser</span><span class=p>,</span>
-          <span class=nx>arg</span><span class=p>.</span><span class=nx>ID</span><span class=p>,</span>
-          <span class=nx>arg</span><span class=p>.</span><span class=nx>Username</span><span class=p>,</span>
-          <span class=nx>arg</span><span class=p>.</span><span class=nx>Email</span><span class=p>,</span>
-          <span class=nx>arg</span><span class=p>.</span><span class=nx>Password</span><span class=p>,</span>
-       <span class=p>)</span>
-       <span class=kd>var</span> <span class=nx>i</span> <span class=nx>User</span>
-       <span class=nx>err</span> <span class=o>:=</span> <span class=nx>row</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>ID</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>Username</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>Email</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>Password</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>Bio</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>Image</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>CreatedAt</span><span class=p>,</span>
-          <span class=o>&amp;</span><span class=nx>i</span><span class=p>.</span><span class=nx>UpdatedAt</span><span class=p>,</span>
-       <span class=p>)</span>
-       <span class=k>return</span> <span class=o>&amp;</span><span class=nx>i</span><span class=p>,</span> <span class=nx>err</span>
-    <span class=p>}</span>
-</code></pre></div><p>As you saw, we obtained our sought (q *Queries) CreateUser method which can be injected into (s *Server) RegisterUser handler:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go>    
-    <span class=kd>type</span> <span class=nx>Server</span> <span class=kd>struct</span> <span class=p>{</span>
-       <span class=nx>config</span> <span class=nx>config</span><span class=p>.</span><span class=nx>Config</span>
-       <span class=nx>router</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Engine</span>
-       <span class=nx>store</span>  <span class=nx>db</span><span class=p>.</span><span class=nx>Querier</span>
-    <span class=p>}</span>
-    
-    <span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=nf>RegisterUser</span><span class=p>(</span><span class=nx>c</span> <span class=o>*</span><span class=nx>gin</span><span class=p>.</span><span class=nx>Context</span><span class=p>)</span> <span class=p>{</span>
-       <span class=kd>var</span> <span class=p>(</span>
-          <span class=nx>req</span> <span class=nx>userRegisterReq</span>
-          <span class=nx>p</span>   <span class=nx>db</span><span class=p>.</span><span class=nx>CreateUserParams</span>
-       <span class=p>)</span>
-       <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>req</span><span class=p>.</span><span class=nf>bind</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>p</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-          <span class=nx>c</span><span class=p>.</span><span class=nf>JSON</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusUnprocessableEntity</span><span class=p>,</span> <span class=nf>NewValidationError</span><span class=p>(</span><span class=nx>err</span><span class=p>))</span>
-          <span class=k>return</span>
-       <span class=p>}</span>
-       <span class=nx>user</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>s</span><span class=p>.</span><span class=nx>store</span><span class=p>.</span><span class=nf>CreateUser</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=nx>p</span><span class=p>)</span>
-       <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-          <span class=k>if</span> <span class=nx>apiErr</span> <span class=o>:=</span> <span class=nf>convertToApiErr</span><span class=p>(</span><span class=nx>err</span><span class=p>);</span> <span class=nx>apiErr</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-             <span class=nx>c</span><span class=p>.</span><span class=nf>JSON</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusUnprocessableEntity</span><span class=p>,</span> <span class=nf>NewValidationError</span><span class=p>(</span><span class=nx>apiErr</span><span class=p>))</span>
-             <span class=k>return</span>
-          <span class=p>}</span>
-          <span class=nx>c</span><span class=p>.</span><span class=nf>JSON</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusInternalServerError</span><span class=p>,</span> <span class=nf>NewError</span><span class=p>(</span><span class=nx>err</span><span class=p>))</span>
-          <span class=k>return</span>
-       <span class=p>}</span>
-       <span class=nx>c</span><span class=p>.</span><span class=nf>JSON</span><span class=p>(</span><span class=nx>http</span><span class=p>.</span><span class=nx>StatusCreated</span><span class=p>,</span> <span class=nf>newUserResponse</span><span class=p>(</span><span class=nx>user</span><span class=p>))</span>
-    <span class=p>}</span>
-</code></pre></div><p>Using db.Querier directly in API handlers is a quick and straightforward way, but it comes with its drawbacks such as handling database errors at the API level.</p>
-<h3 id=conclusion>Conclusion<a hidden class=anchor aria-hidden=true href=#conclusion>#</a></h3>
-<p>In a similar way, the login handler can also be implemented. To make it fast-forward I added more finished code for reference: <a href=https://github.com/aliml92/go-web-demo>https://github.com/aliml92/go-web-demo</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    touch api/server.go api/user_handler.go
+</span></span></code></pre></div><p>Create a Server struct and its helper methods in api/server.go:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#f92672">package</span> <span style="color:#a6e22e">api</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;github.com/gin-gonic/gin&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Server</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">router</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Engine</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewServer</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">server</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Server</span>{
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">router</span>: <span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Default</span>(),
+</span></span><span style="display:flex;"><span>       }
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">server</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span>) <span style="color:#a6e22e">MountHandlers</span>() {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">api</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">router</span>.<span style="color:#a6e22e">Group</span>(<span style="color:#e6db74">&#34;/api&#34;</span>)
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">api</span>.<span style="color:#a6e22e">POST</span>(<span style="color:#e6db74">&#34;/users&#34;</span>, <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">RegisterUser</span>)    <span style="color:#75715e">// TODO: implement RegisterUser
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>       <span style="color:#a6e22e">api</span>.<span style="color:#a6e22e">POST</span>(<span style="color:#e6db74">&#34;/users/login&#34;</span>, <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">LoginUser</span>) <span style="color:#75715e">// TODO: implement LoginUser
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span>) <span style="color:#a6e22e">Start</span>(<span style="color:#a6e22e">addr</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">router</span>.<span style="color:#a6e22e">Run</span>(<span style="color:#a6e22e">addr</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">And</span> <span style="color:#a6e22e">registration</span> <span style="color:#a6e22e">and</span> <span style="color:#a6e22e">login</span> <span style="color:#a6e22e">handlers</span> <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">into</span> <span style="color:#a6e22e">api</span><span style="color:#f92672">/</span><span style="color:#a6e22e">user_handler</span>.<span style="color:#66d9ef">go</span> :
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">package</span> <span style="color:#a6e22e">api</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;github.com/gin-gonic/gin&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// user response type, common to both handlers
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">userResponse</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Username</span> <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;username&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Email</span>    <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;email&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Bio</span>      <span style="color:#f92672">*</span><span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;bio&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Image</span>    <span style="color:#f92672">*</span><span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;image&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Token</span>    <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;token&#34;`</span>
+</span></span><span style="display:flex;"><span>       } <span style="color:#e6db74">`json:&#34;user&#34;`</span>
+</span></span><span style="display:flex;"><span>     }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// user registration handler starts here
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">userRegisterReq</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Username</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;username&#34; binding:&#34;required&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Email</span>    <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;email&#34; binding:&#34;required,email&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Password</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;password&#34; binding:&#34;required&#34;`</span>
+</span></span><span style="display:flex;"><span>       } <span style="color:#e6db74">`json:&#34;user&#34;`</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span>) <span style="color:#a6e22e">RegisterUser</span>(<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) { <span style="color:#75715e">// TODO: POST /users - RegisterUser
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>       panic(<span style="color:#e6db74">&#34;not implemented&#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// user login handler starts here
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">userLoginReq</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Email</span>    <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;email&#34; binding:&#34;required,email&#34;`</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">Password</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;password&#34; binding:&#34;required&#34;`</span>
+</span></span><span style="display:flex;"><span>         } <span style="color:#e6db74">`json:&#34;user&#34;`</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span>) <span style="color:#a6e22e">LoginUser</span>(<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) {  <span style="color:#75715e">// TODO: POST /users/login - LoginUser
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>       panic(<span style="color:#e6db74">&#34;not implemented&#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><p>Since we know the request and response types of those endpoints from the <a href="https://www.realworld.how/docs/specs/backend-specs/endpoints/">spec</a>, I created the corresponding structs; userRegisterReq, userLoginReq and userResponse. Now I will take you through RegisterUser implementation steps:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span>) <span style="color:#a6e22e">RegisterUser</span>(<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) { <span style="color:#75715e">// TODO: POST /users - RegisterUser
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//  1. First bind and validate userRegisterReq
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//  2. Second prepare a user data before storing it in database;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//     for example, generating unique id for each user.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//  3. Store the user data in database
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//  4. Lastly construct userResponse data to send out
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span></code></pre></div><p>At first sight, we can be sure that the third step requires injecting a database connection into this method and having some sort of CreateUser method that belongs to that connection. Let’s generate that method using sqlc which requires at least two files; sqlc.yaml and and user.sql:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    touch sqlc.yaml db/query/user.sql
+</span></span></code></pre></div><p>sqlc uses sqlc.yaml as a configuration file to generate go code and I will explain it later:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;2&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">sql</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">engine</span>: <span style="color:#e6db74">&#34;postgresql&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">queries</span>: <span style="color:#e6db74">&#34;./db/query&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">schema</span>: <span style="color:#e6db74">&#34;./db/migration&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">gen</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">go</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">package</span>: <span style="color:#e6db74">&#34;db&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">sql_package</span>: <span style="color:#e6db74">&#34;pgx/v4&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">out</span>: <span style="color:#e6db74">&#34;./db/sqlc&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">emit_interface</span>: <span style="color:#66d9ef">true</span>                 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">emit_json_tags</span>: <span style="color:#66d9ef">true</span>                 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">emit_pointers_for_null_types</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">emit_result_struct_pointers</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><p>And db/query/user.sql contains queries to retrieve, save, update, and delete user-related data. Add the below statement:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>    <span style="color:#75715e">-- name: CreateUser :one
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> users (
+</span></span><span style="display:flex;"><span>        id,
+</span></span><span style="display:flex;"><span>        username,
+</span></span><span style="display:flex;"><span>        email,
+</span></span><span style="display:flex;"><span>        password 
+</span></span><span style="display:flex;"><span>    ) <span style="color:#66d9ef">VALUES</span> (
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">3</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>    ) 
+</span></span><span style="display:flex;"><span>    RETURNING <span style="color:#f92672">*</span>;
+</span></span></code></pre></div><p>The comment— name: CreateUser :one is important for sqlc’s code generation logic. Since we’re all set, execute sqlc generate command, this will output files like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    go mod tidy <span style="color:#75715e"># first download pgx libraries</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    tree
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># .</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── api</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   ├── server.go</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   └── user_handler.go</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── config</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── db</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   ├── migration</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   │   ├── 000001_create_users_table.down.sql</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   │   └── 000001_create_users_table.up.sql   # sqlc used the file ...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   ├── query</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   │   └── user.sql          # sqlc used the file to generate code</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │   └── sqlc</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │       ├── db.go             # sqlc-generated code</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │       ├── models.go         # sqlc-generated code</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │       ├── querier.go        # sqlc-generated code </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># │       └── user.sql.go       # sqlc-generated code</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── docker-compose.yaml</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── env</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── go.mod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ├── go.sum</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># └── sqlc.yaml                 # sqlc used the file to generate code</span>
+</span></span></code></pre></div><p>Have a look at the generated codes in db/sqlc , which should be as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#75715e">// 1. db.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">package</span> <span style="color:#a6e22e">db</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>       <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>       <span style="color:#e6db74">&#34;github.com/jackc/pgconn&#34;</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#e6db74">&#34;github.com/jackc/pgx/v4&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">DBTX</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Exec</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#66d9ef">string</span>, <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) (<span style="color:#a6e22e">pgconn</span>.<span style="color:#a6e22e">CommandTag</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Query</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#66d9ef">string</span>, <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) (<span style="color:#a6e22e">pgx</span>.<span style="color:#a6e22e">Rows</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">QueryRow</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#66d9ef">string</span>, <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) <span style="color:#a6e22e">pgx</span>.<span style="color:#a6e22e">Row</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">db</span> <span style="color:#a6e22e">DBTX</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">Queries</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Queries</span>{<span style="color:#a6e22e">db</span>: <span style="color:#a6e22e">db</span>}
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 2. models.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">package</span> <span style="color:#a6e22e">db</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>       <span style="color:#e6db74">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">ID</span>        <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;id&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Username</span>  <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;username&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Email</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;email&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Password</span>  <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`json:&#34;password&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Bio</span>       <span style="color:#f92672">*</span><span style="color:#66d9ef">string</span>   <span style="color:#e6db74">`json:&#34;bio&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Image</span>     <span style="color:#f92672">*</span><span style="color:#66d9ef">string</span>   <span style="color:#e6db74">`json:&#34;image&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">CreatedAt</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`json:&#34;created_at&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">UpdatedAt</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`json:&#34;updated_at&#34;`</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 3. querier.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">package</span> <span style="color:#a6e22e">db</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>       <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Querier</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">CreateUser</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">arg</span> <span style="color:#a6e22e">CreateUserParams</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_</span> <span style="color:#a6e22e">Querier</span> = (<span style="color:#f92672">*</span><span style="color:#a6e22e">Queries</span>)(<span style="color:#66d9ef">nil</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 4. user.sql.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">package</span> <span style="color:#a6e22e">db</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>     <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">createUser</span> = <span style="color:#e6db74">`-- name: CreateUser :one
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    INSERT INTO users (
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        id,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        username,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        email,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        password 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ) VALUES (
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        $1,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        $2,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        $3,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        $4
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ) 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    RETURNING id, username, email, password, bio, image, created_at, updated_at
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    `</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">CreateUserParams</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">ID</span>       <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;id&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Username</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;username&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Email</span>    <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;email&#34;`</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">Password</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;password&#34;`</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">q</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Queries</span>) <span style="color:#a6e22e">CreateUser</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">arg</span> <span style="color:#a6e22e">CreateUserParams</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">row</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">q</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">QueryRow</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">createUser</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">arg</span>.<span style="color:#a6e22e">ID</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">arg</span>.<span style="color:#a6e22e">Username</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">arg</span>.<span style="color:#a6e22e">Email</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">arg</span>.<span style="color:#a6e22e">Password</span>,
+</span></span><span style="display:flex;"><span>       )
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#a6e22e">User</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">row</span>.<span style="color:#a6e22e">Scan</span>(
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">ID</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">Username</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">Email</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">Password</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">Bio</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">Image</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">CreatedAt</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">UpdatedAt</span>,
+</span></span><span style="display:flex;"><span>       )
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><p>As you saw, we obtained our sought (q *Queries) CreateUser method which can be injected into (s *Server) RegisterUser handler:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Server</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">config</span> <span style="color:#a6e22e">config</span>.<span style="color:#a6e22e">Config</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">router</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Engine</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">store</span>  <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">Querier</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Server</span>) <span style="color:#a6e22e">RegisterUser</span>(<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) {
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">var</span> (
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">req</span> <span style="color:#a6e22e">userRegisterReq</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">p</span>   <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">CreateUserParams</span>
+</span></span><span style="display:flex;"><span>       )
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">bind</span>(<span style="color:#a6e22e">c</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">p</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">JSON</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusUnprocessableEntity</span>, <span style="color:#a6e22e">NewValidationError</span>(<span style="color:#a6e22e">err</span>))
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>       }
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">user</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">store</span>.<span style="color:#a6e22e">CreateUser</span>(<span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">p</span>)
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">apiErr</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">convertToApiErr</span>(<span style="color:#a6e22e">err</span>); <span style="color:#a6e22e">apiErr</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>             <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">JSON</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusUnprocessableEntity</span>, <span style="color:#a6e22e">NewValidationError</span>(<span style="color:#a6e22e">apiErr</span>))
+</span></span><span style="display:flex;"><span>             <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">JSON</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusInternalServerError</span>, <span style="color:#a6e22e">NewError</span>(<span style="color:#a6e22e">err</span>))
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>       }
+</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">JSON</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusCreated</span>, <span style="color:#a6e22e">newUserResponse</span>(<span style="color:#a6e22e">user</span>))
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><p>Using db.Querier directly in API handlers is a quick and straightforward way, but it comes with its drawbacks such as handling database errors at the API level.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>In a similar way, the login handler can also be implemented. To make it fast-forward I added more finished code for reference: <a href="https://github.com/aliml92/go-web-demo">https://github.com/aliml92/go-web-demo</a>.</p>
 <p>In the next posts, we will explore task runner, database transactions and unit/integration tests, logging, and more.</p>
-<p>If you want to see the finished conduit app, refer to this link: <a href=https://github.com/aliml92/realworld-gin-sqlc>https://github.com/aliml92/realworld-gin-sqlc</a></p>
-</div>
-<footer class=post-footer>
-<ul class=post-tags>
-<li><a href=https://alisherm.dev/tags/sqlc/>sqlc</a></li>
-<li><a href=https://alisherm.dev/tags/gin/>Gin</a></li>
-</ul>
-<div class=share-buttons>
-<a target=_blank rel="noopener noreferrer" aria-label="share A simple go, gin, and sqlc combination walkthrough on twitter" href="https://twitter.com/intent/tweet/?text=A%20simple%20go%2c%20gin%2c%20and%20sqlc%20combination%20walkthrough&url=https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f&hashtags=sqlc%2cgin"><svg viewBox="0 0 512 512" height="30" width="30" fill="currentcolor"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zM195.519 424.544c135.939.0 210.268-112.643 210.268-210.268.0-3.218.0-6.437-.153-9.502 14.406-10.421 26.973-23.448 36.935-38.314-13.18 5.824-27.433 9.809-42.452 11.648 15.326-9.196 26.973-23.602 32.49-40.92-14.252 8.429-30.038 14.56-46.896 17.931-13.487-14.406-32.644-23.295-53.946-23.295-40.767.0-73.87 33.104-73.87 73.87.0 5.824.613 11.494 1.992 16.858-61.456-3.065-115.862-32.49-152.337-77.241-6.284 10.881-9.962 23.601-9.962 37.088.0 25.594 13.027 48.276 32.95 61.456-12.107-.307-23.448-3.678-33.41-9.196v.92c0 35.862 25.441 65.594 59.311 72.49-6.13 1.686-12.72 2.606-19.464 2.606-4.751.0-9.348-.46-13.946-1.38 9.349 29.426 36.628 50.728 68.965 51.341-25.287 19.771-57.164 31.571-91.8 31.571-5.977.0-11.801-.306-17.625-1.073 32.337 21.15 71.264 33.41 112.95 33.41z"/></svg>
-</a>
-<a target=_blank rel="noopener noreferrer" aria-label="share A simple go, gin, and sqlc combination walkthrough on linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url=https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f&title=A%20simple%20go%2c%20gin%2c%20and%20sqlc%20combination%20walkthrough&summary=A%20simple%20go%2c%20gin%2c%20and%20sqlc%20combination%20walkthrough&source=https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f"><svg viewBox="0 0 512 512" height="30" width="30" fill="currentcolor"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zM160.461 423.278V197.561h-75.04v225.717h75.04zm270.539.0V293.839c0-69.333-37.018-101.586-86.381-101.586-39.804.0-57.634 21.891-67.617 37.266v-31.958h-75.021c.995 21.181.0 225.717.0 225.717h75.02V297.222c0-6.748.486-13.492 2.474-18.315 5.414-13.475 17.767-27.434 38.494-27.434 27.135.0 38.007 20.707 38.007 51.037v120.768H431zM123.448 88.722C97.774 88.722 81 105.601 81 127.724c0 21.658 16.264 39.002 41.455 39.002h.484c26.165.0 42.452-17.344 42.452-39.002-.485-22.092-16.241-38.954-41.943-39.002z"/></svg>
-</a>
-<a target=_blank rel="noopener noreferrer" aria-label="share A simple go, gin, and sqlc combination walkthrough on reddit" href="https://reddit.com/submit?url=https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f&title=A%20simple%20go%2c%20gin%2c%20and%20sqlc%20combination%20walkthrough"><svg viewBox="0 0 512 512" height="30" width="30" fill="currentcolor"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zM446 265.638c0-22.964-18.616-41.58-41.58-41.58-11.211.0-21.361 4.457-28.841 11.666-28.424-20.508-67.586-33.757-111.204-35.278l18.941-89.121 61.884 13.157c.756 15.734 13.642 28.29 29.56 28.29 16.407.0 29.706-13.299 29.706-29.701.0-16.403-13.299-29.702-29.706-29.702-11.666.0-21.657 6.792-26.515 16.578l-69.105-14.69c-1.922-.418-3.939-.042-5.585 1.036-1.658 1.073-2.811 2.761-3.224 4.686l-21.152 99.438c-44.258 1.228-84.046 14.494-112.837 35.232-7.468-7.164-17.589-11.591-28.757-11.591-22.965.0-41.585 18.616-41.585 41.58.0 16.896 10.095 31.41 24.568 37.918-.639 4.135-.99 8.328-.99 12.576.0 63.977 74.469 115.836 166.33 115.836s166.334-51.859 166.334-115.836c0-4.218-.347-8.387-.977-12.493 14.564-6.47 24.735-21.034 24.735-38.001zM326.526 373.831c-20.27 20.241-59.115 21.816-70.534 21.816-11.428.0-50.277-1.575-70.522-21.82-3.007-3.008-3.007-7.882.0-10.889 3.003-2.999 7.882-3.003 10.885.0 12.777 12.781 40.11 17.317 59.637 17.317 19.522.0 46.86-4.536 59.657-17.321 3.016-2.999 7.886-2.995 10.885.008 3.008 3.011 3.003 7.882-.008 10.889zm-5.23-48.781c-16.373.0-29.701-13.324-29.701-29.698.0-16.381 13.328-29.714 29.701-29.714 16.378.0 29.706 13.333 29.706 29.714.0 16.374-13.328 29.698-29.706 29.698zM160.91 295.348c0-16.381 13.328-29.71 29.714-29.71 16.369.0 29.689 13.329 29.689 29.71.0 16.373-13.32 29.693-29.689 29.693-16.386.0-29.714-13.32-29.714-29.693z"/></svg>
-</a>
-<a target=_blank rel="noopener noreferrer" aria-label="share A simple go, gin, and sqlc combination walkthrough on facebook" href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f"><svg viewBox="0 0 512 512" height="30" width="30" fill="currentcolor"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H342.978V319.085h66.6l12.672-82.621h-79.272v-53.617c0-22.603 11.073-44.636 46.58-44.636H425.6v-70.34s-32.71-5.582-63.982-5.582c-65.288.0-107.96 39.569-107.96 111.204v62.971h-72.573v82.621h72.573V512h-191.104c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892z"/></svg>
-</a>
-<a target=_blank rel="noopener noreferrer" aria-label="share A simple go, gin, and sqlc combination walkthrough on whatsapp" href="https://api.whatsapp.com/send?text=A%20simple%20go%2c%20gin%2c%20and%20sqlc%20combination%20walkthrough%20-%20https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f"><svg viewBox="0 0 512 512" height="30" width="30" fill="currentcolor"><path d="M449.446.0C483.971.0 512 28.03 512 62.554v386.892C512 483.97 483.97 512 449.446 512H62.554c-34.524.0-62.554-28.03-62.554-62.554V62.554c0-34.524 28.029-62.554 62.554-62.554h386.892zm-58.673 127.703c-33.842-33.881-78.847-52.548-126.798-52.568-98.799.0-179.21 80.405-179.249 179.234-.013 31.593 8.241 62.428 23.927 89.612l-25.429 92.884 95.021-24.925c26.181 14.28 55.659 21.807 85.658 21.816h.074c98.789.0 179.206-80.413 179.247-179.243.018-47.895-18.61-92.93-52.451-126.81zM263.976 403.485h-.06c-26.734-.01-52.954-7.193-75.828-20.767l-5.441-3.229-56.386 14.792 15.05-54.977-3.542-5.637c-14.913-23.72-22.791-51.136-22.779-79.287.033-82.142 66.867-148.971 149.046-148.971 39.793.014 77.199 15.531 105.329 43.692 28.128 28.16 43.609 65.592 43.594 105.4-.034 82.149-66.866 148.983-148.983 148.984zm81.721-111.581c-4.479-2.242-26.499-13.075-30.604-14.571-4.105-1.495-7.091-2.241-10.077 2.241-2.986 4.483-11.569 14.572-14.182 17.562-2.612 2.988-5.225 3.364-9.703 1.12-4.479-2.241-18.91-6.97-36.017-22.23C231.8 264.15 222.81 249.484 220.198 245s-.279-6.908 1.963-9.14c2.016-2.007 4.48-5.232 6.719-7.847 2.24-2.615 2.986-4.484 4.479-7.472 1.493-2.99.747-5.604-.374-7.846-1.119-2.241-10.077-24.288-13.809-33.256-3.635-8.733-7.327-7.55-10.077-7.688-2.609-.13-5.598-.158-8.583-.158-2.986.0-7.839 1.121-11.944 5.604-4.105 4.484-15.675 15.32-15.675 37.364.0 22.046 16.048 43.342 18.287 46.332 2.24 2.99 31.582 48.227 76.511 67.627 10.685 4.615 19.028 7.371 25.533 9.434 10.728 3.41 20.492 2.929 28.209 1.775 8.605-1.285 26.499-10.833 30.231-21.295 3.732-10.464 3.732-19.431 2.612-21.298-1.119-1.869-4.105-2.99-8.583-5.232z"/></svg>
-</a>
-<a target=_blank rel="noopener noreferrer" aria-label="share A simple go, gin, and sqlc combination walkthrough on telegram" href="https://telegram.me/share/url?text=A%20simple%20go%2c%20gin%2c%20and%20sqlc%20combination%20walkthrough&url=https%3a%2f%2falisherm.dev%2fposts%2fgo-gin-sqlc-walkthrough%2f"><svg viewBox="2 2 28 28" height="30" width="30" fill="currentcolor"><path d="M26.49 29.86H5.5a3.37 3.37.0 01-2.47-1 3.35 3.35.0 01-1-2.47V5.48A3.36 3.36.0 013 3 3.37 3.37.0 015.5 2h21A3.38 3.38.0 0129 3a3.36 3.36.0 011 2.46V26.37a3.35 3.35.0 01-1 2.47 3.38 3.38.0 01-2.51 1.02zm-5.38-6.71a.79.79.0 00.85-.66L24.73 9.24a.55.55.0 00-.18-.46.62.62.0 00-.41-.17q-.08.0-16.53 6.11a.59.59.0 00-.41.59.57.57.0 00.43.52l4 1.24 1.61 4.83a.62.62.0 00.63.43.56.56.0 00.4-.17L16.54 20l4.09 3A.9.9.0 0021.11 23.15zM13.8 20.71l-1.21-4q8.72-5.55 8.78-5.55c.15.0.23.0.23.16a.18.18.0 010 .06s-2.51 2.3-7.52 6.8z"/></svg>
-</a>
-</div>
-</footer>
+<p>If you want to see the finished conduit app, refer to this link: <a href="https://github.com/aliml92/realworld-gin-sqlc">https://github.com/aliml92/realworld-gin-sqlc</a></p>
+</section>
+
+  
+  
+  <footer class="mt-12 flex flex-wrap">
+     
+    <a
+      class="mb-1.5 mr-1.5 rounded-lg bg-black/[3%] px-5 py-1.5 no-underline dark:bg-white/[8%]"
+      href="https://alisherm.dev/tags/sqlc"
+      >sqlc</a
+    >
+     
+    <a
+      class="mb-1.5 mr-1.5 rounded-lg bg-black/[3%] px-5 py-1.5 no-underline dark:bg-white/[8%]"
+      href="https://alisherm.dev/tags/gin"
+      >gin</a
+    >
+    
+  </footer>
+  
+
+  
+  
+  
+  
+  <nav class="mt-24 flex rounded-lg bg-black/[3%] text-lg dark:bg-white/[8%]">
+    
+    
+    <a
+      class="ml-auto flex w-1/2 items-center justify-end rounded-r-md p-6 pl-3 font-semibold no-underline hover:bg-black/[2%] dark:hover:bg-white/[3%]"
+      href="https://alisherm.dev/posts/introduction-to-ocpp/"
+      ><span>Introduction to OCPP(Open Charge Point Protocol)</span><span class="ml-1.5">→</span></a
+    >
+    
+  </nav>
+  
+  
+
+  
+  
+
+  
+  
+
+  
+
+  
 </article>
-</main>
-<footer class=footer>
-<span>&copy; 2023 <a href=https://alisherm.dev>alisherm.dev</a></span>
-<span>
-Powered by
-<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
-        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a>
-</span>
+
+
+    </main>
+
+    <footer
+  class="opaco mx-auto flex h-[4.5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
+>
+  <div class="mr-auto">
+    &copy; 2024
+    <a class="link" href="https://alisherm.dev">Home</a>
+  </div>
+  <a class="link mx-6" href="https://gohugo.io/" rel="noopener" target="_blank"
+    >Powered by Hugo️️</a
+  >️
+  <a
+    class="link"
+    href="https://github.com/nanxiaobei/hugo-paper"
+    rel="noopener"
+    target="_blank"
+    >✎ Paper</a
+  >
 </footer>
-<a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
-</a>
-<script>let menu=document.getElementById('menu');menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener("click",function(b){b.preventDefault();var a=this.getAttribute("href").substr(1);window.matchMedia('(prefers-reduced-motion: reduce)').matches?document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView({behavior:"smooth"}),a==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${a}`)})})</script>
-<script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script>
-<script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove('dark'),localStorage.setItem("pref-theme",'light')):(document.body.classList.add('dark'),localStorage.setItem("pref-theme",'dark'))})</script>
-</body>
+
+  </body>
 </html>
