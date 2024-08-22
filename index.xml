@@ -10,6 +10,13 @@
     <lastBuildDate>Sun, 07 May 2023 09:44:20 +0900</lastBuildDate>
     <atom:link href="https://alisherm.dev/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Projects</title>
+      <link>https://alisherm.dev/projects/</link>
+      <pubDate>Tue, 22 Aug 2023 10:00:00 +0900</pubDate>
+      <guid>https://alisherm.dev/projects/</guid>
+      <description>Here are some personal projects I&amp;rsquo;ve worked on:&#xA;Anor A full-stack ecommerce application built with Golang, htmx, and Typesense.&#xA;GitHub: aliml92/anor&#xA;Go-Typesense A Golang client library for Typesense, a fast and typo-tolerant search engine.&#xA;GitHub: aliml92/go-typesense</description>
+    </item>
+    <item>
       <title>A simple go, gin, and sqlc combination walkthrough</title>
       <link>https://alisherm.dev/posts/go-gin-sqlc-walkthrough/</link>
       <pubDate>Sun, 07 May 2023 09:44:20 +0900</pubDate>
@@ -28,7 +35,7 @@
       <link>https://alisherm.dev/about/</link>
       <pubDate>Tue, 17 Jan 2023 09:30:59 +0900</pubDate>
       <guid>https://alisherm.dev/about/</guid>
-      <description>Greetings! I&amp;rsquo;m a backend engineer specializing in Golang, with over 2.5 years of experience in building backend API services using Golang and Python. I also have some experience in DevOps. Passionate about exploring new technologies, I thrive in both team settings and solo projects, always aiming to excel in my field. Take a look at my resume to learn more about my experience and skills!&#xA;Languages Golang, SQL, Python, Javascript.</description>
+      <description>Greetings! I&amp;rsquo;m a backend engineer specializing in Golang, with almost 3 years of experience in building backend API services using Golang and Python. I also have some experience in DevOps. Passionate about exploring new technologies, I thrive in both team settings and solo projects, always aiming to excel in my field. Take a look at my resume to learn more about my experience and skills!&#xA;Technical Skills Programming Languages &amp;amp; Databases Go (Golang), Python, JavaScript, SQL PostgreSQL, MongoDB Web Technologies REST APIs, WebSocket, GRPC Frameworks &amp;amp; Libraries Go: Gin, Echo, Gorilla Web Toolkit, pgx Python: FastAPI, Sanic Frontend: htmx SQL: sqlc (SQL compiler for Go) DevOps &amp;amp; Infrastructure Linux, Docker, Kubernetes Traefik, Nginx NATS (messaging system) Search Technologies Elasticsearch, Typesense </description>
     </item>
     <item>
       <title>Search</title>
