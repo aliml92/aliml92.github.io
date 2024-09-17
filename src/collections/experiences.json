@@ -1,0 +1,16 @@
+[
+	{
+		"dates": "Feb. 2023 · Present",
+		"role": "Backend Engineer",
+		"company": "PSJ Global",
+		"description": "I’ve been contributing to OceanDrive, a decentralized storage solution utilizing IPFS, by developing backend services and implementing key features.",
+		"logo": "/assets/images/experiences/logo_hover.svg"
+	},
+	{
+		"dates": "Sept. 2021 · Feb. 2023",
+		"role": "Backend Engineer",
+		"company": "Koolsign",
+		"description": "In this role, I was responsible for obtaining an OCPP certificate, developing an OCPP server app, and setting up and managing on-premise Kubernetes infrastructure for the EV charging solution, Koolcharge.",
+		"logo": "/assets/images/experiences/koolcharge.png"
+	}
+]

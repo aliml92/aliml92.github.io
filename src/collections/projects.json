@@ -1,0 +1,8 @@
+[
+	{
+		"name": "Anor",
+		"description": "Ecommerce app written in golang and htmx.",
+		"image": "/assets/images/projects/anor.png",
+		"url": "https://anor.alisherm.dev"
+	}
+]

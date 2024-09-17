@@ -1,0 +1,29 @@
+---
+interface Props {
+  date: Date | string;
+}
+
+const { date } = Astro.props;
+
+function formatDate(input: Date | string) {
+  const dateObject = input instanceof Date ? input : new Date(input);
+  
+  if (isNaN(dateObject.getTime())) {
+    console.error('Invalid date input:', input);
+    return 'Invalid Date';
+  }
+
+  return dateObject.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  });
+}
+
+const formattedDate = formatDate(date);
+const isoString = date instanceof Date ? date.toISOString() : new Date(date).toISOString();
+---
+
+<time datetime={isoString}>
+  {formattedDate}
+</time>
